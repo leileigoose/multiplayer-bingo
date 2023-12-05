@@ -3,7 +3,7 @@ const { Client } = require("pg");
 const configureDatabase = () => {
     const db = new Client({
         connectionString: process.env.DB_INTERNAL_URL,
-        ssl:false
+        ssl:true
     });
 
     return db;

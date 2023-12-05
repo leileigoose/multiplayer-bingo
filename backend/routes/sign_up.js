@@ -18,7 +18,7 @@ router.post("/",async (request,response) =>  {
     console.log(username);
     console.log(email);
     try {
-        const user = new User({ username, email, password });
+        const user = { username, email, password };
 
         await createUser(db, user);
 
