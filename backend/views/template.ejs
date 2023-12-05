@@ -14,7 +14,7 @@
         <a href="/" > Home</a>  
         
         <% if (loggedIn) { %>
-            <span>Welcome <%= user.username.username %> TO THE JUNGLE!</span>
+            <a href="/auth/logout"> Logout</a>
         <% } else { %>
             <a href="/login"> Login</a>
         <% } %>

@@ -38,6 +38,7 @@ app.use("/lobby",globalLobbyRoutes);
 app.use("/auth", authRoutes);
 app.use("/signup",signUpRoutes);
 app.use("/login", loginRoutes);
+app.use("/auth", authRoutes);
 
 // we are just setting views up views is in "views" dir and engine is ejs
 app.set("views", path.join(__dirname, "views"));
