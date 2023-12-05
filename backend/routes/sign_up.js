@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
 const User = require("../models/user.model");
 const configureDatabase = require("../../db/db");
 
@@ -11,6 +12,7 @@ router.get("/", (_request, response) => {
 
 router.post("/",async (request,response) =>  {
     const { username, email, password, confirm_password} = request.body;
+    
 
     const db = configureDatabase();
     await db.connect();
@@ -32,10 +34,12 @@ module.exports = router;
 
 
 async function createUser(db, user) {
-    console.log("User values:", user.username, user.email, user.password);
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+
+    console.log("User values:", user.username, user.email, hashedPassword);
     const query = {
         text: "INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
-        values: [user.username, user.email, user.password],
+        values: [user.username, user.email, hashedPassword],
     };
 
     const result = await db.query(query);
