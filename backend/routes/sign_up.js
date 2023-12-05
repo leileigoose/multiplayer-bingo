@@ -9,7 +9,7 @@ router.get("/", (_request, response) => {
 });
 
 router.post("/",async (request,response) =>  {
-    console.log("Request body:", request.body); // Add this line
+    console.log("Request body:", request.body); 
     const { username, email, password, confirm_password} = request.body;
 
     const db = configureDatabase();

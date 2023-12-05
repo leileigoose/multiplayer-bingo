@@ -5,7 +5,6 @@ const User = require("../models/user.model");
 const configureDatabase = require("../../db/db");
 
 router.get("/", (_request, response) => {
-    // Pass an additional parameter to indicate the login status
     response.render("login.ejs", { loginFailed: false });
 });
 
@@ -22,11 +21,9 @@ router.post("/", async (request, response) => {
 
         if (user) {
             // Authentication successful
-            // You might want to set a session or generate a token here
-            response.redirect("/"); // Redirect to a dashboard or user-specific page
+            response.redirect("/"); // redirect
         } else {
-            // Authentication failed
-            // Pass an additional parameter to indicate the login failure
+            // Auth failed
             response.render("login.ejs", { loginFailed: true });
         }
     } catch (error) {
@@ -49,7 +46,7 @@ async function getUserByUsernameAndPassword(db, username, password) {
 
     if (result.rows.length > 0) {
         // User found
-        return new User(result.rows[0]); // Assuming User constructor accepts an object
+        return new User(result.rows[0]); 
     } else {
         // User not found
         return null;
