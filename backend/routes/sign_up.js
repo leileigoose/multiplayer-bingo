@@ -5,18 +5,16 @@ const configureDatabase = require("../../db/db");
 
 
 router.get("/", (_request, response) => {
-    response.render("sign_up.ejs");
+    const user = _request.session.user;
+    response.render("sign_up.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user});
 });
 
 router.post("/",async (request,response) =>  {
-    console.log("Request body:", request.body); 
     const { username, email, password, confirm_password} = request.body;
 
     const db = configureDatabase();
     await db.connect();
-    console.log(password);
-    console.log(username);
-    console.log(email);
+    
     try {
         const user = { username, email, password };
 

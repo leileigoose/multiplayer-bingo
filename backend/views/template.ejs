@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" type="css" href="../../frontend/static/templatestyle.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> <%= pageTitle %> </title>
 </head>
@@ -11,14 +12,20 @@
     <header>
     <nav>
         <a href="/" > Home</a>  
-        <a href="/login"> Login</a>
+        
+        <% if (loggedIn) { %>
+            <span>Welcome <%= user.username.username %> TO THE JUNGLE!</span>
+        <% } else { %>
+            <a href="/login"> Login</a>
+        <% } %>
+       
         <a href="/signup" > Sign Up</a>
         <a href="/game" > Game</a>
         <a href="/lobby" > Lobby</a>
     </nav>
-</header>
-<main>
-    <%= pageContent %>
-</main>
+    </header>
+    <main>
+        <%= pageContent %>
+    </main>
 </body>
 </html>

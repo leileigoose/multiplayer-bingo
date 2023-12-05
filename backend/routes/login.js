@@ -5,7 +5,9 @@ const User = require("../models/user.model");
 const configureDatabase = require("../../db/db");
 
 router.get("/", (_request, response) => {
-    response.render("login.ejs", { loginFailed: false });
+    const user = _request.session.user;
+    const loggedIn = _request.session.loggedIn;
+    response.render("login.ejs", { loginFailed: false, loggedIn: _request.session.loggedIn });
 });
 
 router.post("/", async (request, response) => {
@@ -16,14 +18,15 @@ router.post("/", async (request, response) => {
     await db.connect();
 
     try {
-        // Query the database to check if the username and password match
+        // searching for user in db
         const user = await getUserByUsernameAndPassword(db, username, password);
 
         if (user) {
-            // Authentication successful
+            request.session.loggedIn = true;
+            request.session.user = user;
             response.redirect("/"); // redirect
         } else {
-            // Auth failed
+            // auth failed
             response.render("login.ejs", { loginFailed: true });
         }
     } catch (error) {

@@ -1,4 +1,6 @@
 const express = require("express");
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -6,6 +8,20 @@ const PORT = process.env.PORT || 3000;
 require("dotenv").config();
 
 app.use(bodyParser.urlencoded({extended:true}));
+
+
+//set up to use cookies
+app.use(cookieParser());
+
+app.use(
+    session({
+        secret: "key",
+        resave: false,
+        saveUninitialized: true,
+    })
+);
+
+app.use(express.static(path.join(__dirname, "../../frontend/")));
 
 // establishing routes
 const authRoutes = require("./routes/authentication");

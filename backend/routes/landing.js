@@ -2,7 +2,9 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/", (_request, response) => {
-    response.render("landing.ejs", { pageTitle: "Home", pageContent: "Welcome" });
+    const user = _request.session.user;
+    const loggedIn = _request.session.loggedIn;
+    response.render("landing.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user});
 });
 
 module.exports = router;
