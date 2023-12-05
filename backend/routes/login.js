@@ -20,7 +20,7 @@ router.post("/", async (request, response) => {
         // Query the database to check if the username and password match
         const user = await getUserByUsernameAndPassword(db, username, password);
 
-        if (user != null) {
+        if (user) {
             // Authentication successful
             // You might want to set a session or generate a token here
             response.redirect("/"); // Redirect to a dashboard or user-specific page

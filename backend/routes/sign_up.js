@@ -22,7 +22,7 @@ router.post("/",async (request,response) =>  {
 
         await createUser(db, user);
 
-        response.redirect("/signup-success");
+        response.redirect("/login");
     } catch (error) {
         console.error("Error creating user:", error);
         response.status(500).send("Internal server error.");
