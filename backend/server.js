@@ -52,7 +52,7 @@ app.set("view engine", "ejs");
 
 // this is how you set up a route like a link
 app.get("/root/hello", (_request, response) => {
-    response.render("hello"); // Render the "hello" EJS template
+    response.render("hello"); 
 });
 
 const server = http.createServer(app); 
@@ -93,7 +93,6 @@ io.on("connection", (socket) => {
     });
 
 
-    // Handle disconnection
     socket.on("disconnect", () => {
         console.log("User disconnected");
     });

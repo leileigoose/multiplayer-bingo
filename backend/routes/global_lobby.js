@@ -38,7 +38,6 @@ io.on("connection", (socket) => {
             } else {
                 console.log('Connected to the database');
     
-                // Perform the database query
                 db.query("INSERT INTO messages (player_name, message_time, message_content) VALUES ($1, $2, $3)", [sender, timestamp, content], (error, result) => {
                     if (error) {
                         console.error("Error saving message to the database:", error);
@@ -47,7 +46,6 @@ io.on("connection", (socket) => {
                         io.emit("message", data);
                     }
     
-                    // Close the database connection
                     db.end();
                 });
             }
