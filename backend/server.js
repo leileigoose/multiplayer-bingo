@@ -1,11 +1,15 @@
 const express = require("express");
+const http = require("http");
+const websocket = require("socket.io");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
 const PORT = process.env.PORT || 3000;
+const requireLogin = require("../backend/middleware/reqLogin.js")
 require("dotenv").config();
+
 
 app.use(bodyParser.urlencoded({extended:true}));
 
@@ -49,7 +53,29 @@ app.get("/root/hello", (_request, response) => {
     response.render("hello"); // Render the "hello" EJS template
 });
 
+const server = http.createServer(app); 
+
+const io = new websocket.Server(server, {
+    cors: {
+        origin: process.env.NODE_ENV === "production" ? false:
+        ["http://localhost:3000"]
+    }
+});
+
+io.on("connection", (socket) => {
+    console.log("A user connected");
+  
+    socket.on("message", (data) => {
+        //this is going toi send to all
+      io.emit("message", data);
+    });
+  
+    socket.on("disconnect", () => {
+      console.log("User disconnected");
+    });
+  });
 // startttturrr uppp
-app.listen(PORT, () => {
+
+server.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
 });
