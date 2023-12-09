@@ -34,6 +34,8 @@ const globalLobbyRoutes = require("./routes/global_lobby.js");
 const landingRoutes = require("./routes/landing");
 const signUpRoutes = require("./routes/sign_up");
 const loginRoutes = require("./routes/login");
+const configureDatabase = require("../db/db.js");
+const { config } = require("dotenv");
 
 // mounting routerssss
 app.use("/", landingRoutes);
@@ -62,18 +64,40 @@ const io = new websocket.Server(server, {
     }
 });
 
+
 io.on("connection", (socket) => {
     console.log("A user connected");
-  
-    socket.on("message", (data) => {
-        //this is going toi send to all
-      io.emit("message", data);
+
+    socket.on("message", (messageData) => {
+        const content = messageData.content;
+        const sender = messageData.sender;
+        const timestamp = messageData.timestamp;
+        const db = configureDatabase();
+
+        db.connect((err) => {
+            if (err) {
+                console.error('db connection error:', err);
+            } else {
+                console.log('Connected to the database');
+                db.query("INSERT INTO messages (player_name, message_time, message_content) VALUES ($1, $2, $3)", [sender, timestamp, content], (error, result) => {
+                    if (error) {
+                        console.error("frror saving message to the db:", error);
+                    } else {
+                        console.log('message inserted good');
+                        io.emit("message", messageData);
+                    }
+                    db.end();
+                });
+            }
+        });
     });
-  
+
+
+    // Handle disconnection
     socket.on("disconnect", () => {
-      console.log("User disconnected");
+        console.log("User disconnected");
     });
-  });
+});
 // startttturrr uppp
 
 server.listen(PORT, () => {

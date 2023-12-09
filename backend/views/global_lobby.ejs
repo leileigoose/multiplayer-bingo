@@ -16,18 +16,32 @@
         e.preventDefault();
         const input = document.querySelector('input');
         if (input.value) {
-            socket.emit("message", input.value);
-            input.value = "";
-        }
-        input.focus();
+            const messageData = {
+                content: input.value,
+                sender: '<%= user.username.username %>', 
+                timestamp: new Date().toISOString().slice(0, 19).replace("T", " ")  // Format as 'YYYY-MM-DD HH:MI:SS'
+            };
+        
+        socket.emit("message", messageData);
+        input.value = "";
     }
+
+
+    input.focus();
+}
+
 
     document.getElementById('sendMessage').addEventListener('click', sendMessage);
 
     // listening for mesages from the serverrrr
-    socket.on("message", (data) => {
+    socket.on("message", (messageData) => {
+        const content = messageData.content;
+        const sender = messageData.sender;
+        const timestamp = messageData.timestamp;
+
         const li = document.createElement('li');
-        li.textContent = data;
+        li.textContent = timestamp + ' ' + sender + ' ' + content ;
+        console.log(messageData);
         document.querySelector('ul').appendChild(li);
     });
 </script>
