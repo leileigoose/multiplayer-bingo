@@ -11,7 +11,7 @@ const configureDatabase = () => {
 
 async function createUser(username, email, password) {
     const query = {
-      text: "INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+      text: "INSERT INTO player (username, email, password) VALUES ($1, $2, $3)",
       values: [username, email, password],
     };
   
