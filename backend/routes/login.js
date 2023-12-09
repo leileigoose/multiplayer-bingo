@@ -42,7 +42,7 @@ router.post("/", async (request, response) => {
 
 async function getUserByUsernameAndPassword(db, username,password) {
     const query = {
-        text: "SELECT * FROM users WHERE username = $1",
+        text: "SELECT * FROM player WHERE username = $1",
         values: [username],
     };
 

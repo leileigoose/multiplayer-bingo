@@ -38,7 +38,7 @@ async function createUser(db, user) {
 
     console.log("User values:", user.username, user.email, hashedPassword);
     const query = {
-        text: "INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+        text: "INSERT INTO player (username, email, password) VALUES ($1, $2, $3)",
         values: [user.username, user.email, hashedPassword],
     };
 
