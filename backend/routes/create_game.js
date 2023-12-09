@@ -4,7 +4,6 @@ const crypto = require("crypto");
 const configureDatabase = require("../../db/db");
 
 router.get("/", (_request, response) => {
-    console.log("Wow we here");
     const user = _request.session.user;
     response.render("create_game.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user});
 });

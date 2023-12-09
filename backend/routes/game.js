@@ -1,11 +1,34 @@
 const express = require("express");
 const router = express.Router();
+const configureDatabase = require("../../db/db");
+const isAuthenticated = require("../middleware/authenticated");
 
-router.get("/", (_request, response) => {
-    const user = _request.session.user;
-    const loggedIn = _request.session.loggedIn;
-    response.render("game.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user});
+router.use(isAuthenticated);
+const db = configureDatabase();
+
+router.get("/:gamecode", (request, response) => {
+    console.log(request.params);
+    const gamecode = request.params.gamecode;
+
+    const gameData = getGameData(gamecode);
+
+    if (gameData) {
+        response.render("game.ejs", { pageTitle: 'In game', gameData, loggedIn: request.session.loggedIn});
+    } else {
+        response.status(404).send("Game not found :(");
+    }
 });
 
+async function getGameData(gamecode) {
+    console.log("Fetching game...");
+    const query = {
+        text: "SELECT * FROM game where gamecode = $1",
+        values: [gamecode],
+    };
 
+    const result = await db.query(query);
+    console.log(result);
+
+    return result.rows[0];
+}
 module.exports = router;

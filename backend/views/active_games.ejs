@@ -6,14 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> <%= pageTitle %> </title>
 </head>
-
-
 <body>
-    <header>
-        <%- include('./partials/navbar.ejs') %>
-    </header>
-    <main>
-        <%= pageContent %>
-    </main>
+    <%- include ('./partials/navbar.ejs', { pageTitle: 'In Game', pageContent:'GAME TIME'})%>
+    <h1>Here are your active games</h1>
+    <%- include ('./partials/active_game_list')%>
 </body>
 </html>

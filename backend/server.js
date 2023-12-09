@@ -26,6 +26,7 @@ app.use(express.static(path.join(__dirname, "../../frontend/")));
 // establishing routes
 const authRoutes = require("./routes/authentication");
 const gameRoutes = require("./routes/game.js");
+const activeGamesRoutes = require("./routes/active_games.js");
 const globalLobbyRoutes = require("./routes/global_lobby.js");
 const createGameRoutes = require("./routes/create_game.js");
 const landingRoutes = require("./routes/landing");
@@ -35,6 +36,7 @@ const loginRoutes = require("./routes/login");
 // mounting routerssss
 app.use("/", landingRoutes);
 app.use("/game", gameRoutes);
+app.use("/activegames", activeGamesRoutes);
 app.use("/lobby",globalLobbyRoutes);
 app.use("/creategame",createGameRoutes);
 app.use("/auth", authRoutes);

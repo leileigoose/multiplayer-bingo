@@ -1,0 +1,12 @@
+<ul>
+    <% if(active_games !== undefined && active_games.length > 0) { %>
+    <% active_games.array.forEach(element => {
+        
+    }); (game => { %>
+        <li>
+            <%=game.game_code %> - <%= game.game_name %>
+        </li>
+    <% })} else { %>
+        <p> No games being played</p>
+        <% } %>
+</ul>

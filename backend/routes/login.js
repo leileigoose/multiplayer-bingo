@@ -22,7 +22,7 @@ router.post("/", async (request, response) => {
         // searching for user in db
         const user = await getUserByUsernameAndPassword(db, username, password);
         console.log("made it here!");
-        if (user ) {
+        if (user) {
             console.log("made it here2");
 
             request.session.loggedIn = true;

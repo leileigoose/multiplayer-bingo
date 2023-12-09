@@ -6,5 +6,4 @@ router.get("/", (_request, response) => {
     response.render("global_lobby.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user});
 });
 
-
 module.exports = router;
