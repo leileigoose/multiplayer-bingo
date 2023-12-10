@@ -4,7 +4,9 @@
         
     }); (game => { %>
         <li>
-            <%=game.game_code %> - <%= game.game_name %>
+            <a href="/game/<% game.game_code %>">
+                <%= game.game_name %>
+            </a>
         </li>
     <% })} else { %>
         <p> No games being played</p>

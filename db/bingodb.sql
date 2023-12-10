@@ -71,16 +71,16 @@ CREATE TABLE "player_gamechat" (
   FOREIGN KEY ("gamechat_id") REFERENCES "gamechat" ("id")
 );
 
-ALTER TABLE "gamechat" ADD FOREIGN KEY ("game_id") REFERENCES "game" ("id");
+ALTER TABLE "gamechat" ADD FOREIGN KEY ("game_id") REFERENCES "game" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "player_card" ADD FOREIGN KEY ("game_id") REFERENCES "game" ("id");
+ALTER TABLE "player_card" ADD FOREIGN KEY ("game_id") REFERENCES "game" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "player_card" ADD FOREIGN KEY ("player_id") REFERENCES "player" ("id");
+ALTER TABLE "player_card" ADD FOREIGN KEY ("player_id") REFERENCES "player" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "pulled_balls" ADD FOREIGN KEY ("game_id") REFERENCES "game" ("id");
+ALTER TABLE "pulled_balls" ADD FOREIGN KEY ("game_id") REFERENCES "game" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "pulled_balls" ADD FOREIGN KEY ("bingo_ball_id") REFERENCES "bingo_ball" ("id");
+ALTER TABLE "pulled_balls" ADD FOREIGN KEY ("bingo_ball_id") REFERENCES "bingo_ball" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "card_spot" ADD FOREIGN KEY ("bingo_ball_id") REFERENCES "bingo_ball" ("id");
+ALTER TABLE "card_spot" ADD FOREIGN KEY ("bingo_ball_id") REFERENCES "bingo_ball" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "card_spot" ADD FOREIGN KEY ("player_card_id") REFERENCES "player_card" ("id");
+ALTER TABLE "card_spot" ADD FOREIGN KEY ("player_card_id") REFERENCES "player_card" ("id") ON DELETE CASCADE;
