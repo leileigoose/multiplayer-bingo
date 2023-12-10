@@ -7,13 +7,14 @@ router.use(isAuthenticated);
 const db = configureDatabase();
 
 router.get("/:gamecode", (request, response) => {
+    const user = request.session.user;
     console.log(request.params);
     const gamecode = request.params.gamecode;
 
     const gameData = getGameData(gamecode);
 
     if (gameData) {
-        response.render("game.ejs", { pageTitle: 'In game', gameData, loggedIn: request.session.loggedIn});
+        response.render("game.ejs", { pageTitle: 'In game', gameData, loggedIn: request.session.loggedIn ,user});
     } else {
         response.status(404).send("Game not found :(");
     }

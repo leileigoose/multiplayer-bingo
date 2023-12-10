@@ -76,6 +76,7 @@ io.on("connection", (socket) => {
         const content = messageData.content;
         const sender = messageData.sender;
         const timestamp = messageData.timestamp;
+        const gamecode = messageData.gamecode;
         const db = configureDatabase();
 
         db.connect((err) => {
@@ -83,7 +84,7 @@ io.on("connection", (socket) => {
                 console.error('db connection error:', err);
             } else {
                 console.log('Connected to the database');
-                db.query("INSERT INTO messages (player_name, message_time, message_content) VALUES ($1, $2, $3)", [sender, timestamp, content], (error, result) => {
+                db.query("INSERT INTO gamechat (player_name, message_time, message_content) VALUES ($1, $2, $3)", [sender, timestamp, content], (error, result) => {
                     if (error) {
                         console.error("frror saving message to the db:", error);
                     } else {
