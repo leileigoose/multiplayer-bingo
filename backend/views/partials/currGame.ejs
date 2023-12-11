@@ -1,13 +1,13 @@
 <span> 
-    <button class="game-start" id="gamestart">Send</button>
-    <div class="game"> 
-
-    </div>
+    <button class="game-start" id="gamestart">Game Start</button>
+    <button class="create-playercard" id="playercard"> Create Player Card</button>
+    <button class="create-board" id="create-board"> Create Board</button>
+    <table id="tblBingo"></table>
 </span>
 
 
 <script>
-
+    const table = document.querySelector("tblBingo")
     function gamestart(e) {
         e.preventDefault();
         const gamestartPayload = { 
@@ -22,13 +22,51 @@
         // then mark it on the right player_id and game_code
     }) 
 
+    function getPlayerCard(e){
+        e.preventDefault();
+        const playercardPayload = {
+            game_id: '<%=gamecode%>',
+            player_id: '<%= user.username.username%>',
+            is_winner: 'f'
+        }
+        socket.emit("getPlayerCard", playercardPayload);
+    }
 
+    socket.on("game_card_exists", (data) => {
+    alert(data.message);
+    });
+
+    function generateBoard() {
+        let tr = document.createElement("tr");
+        table.appendChild(tr);
+        for (i = 0; i < 5; i++) {
+           
+
+            for (j = 0; j < 5; j++) {
+            let td = document.createElement("td")
+            td.id = arr[iterator].toString()
+            td.style.height = "20%"
+            td.style.width = "20%"
+            td.classList.add("main-table-cell")
+
+            let div = document.createElement("div")
+            div.classList.add("cell-format")
+            div.textContent = arr[iterator].toString()
+            td.appendChild(div)
+            tr.appendChild(td)
+            iterator++;
+            }
+        }
+        console.log("BUTTOIN MASHED")
+    }
 
 
 
 document.getElementById('gamestart').addEventListener('click', gamestart);
 
+document.getElementById('playercard').addEventListener('click', getPlayerCard);
 
+document.getElementById('create-board').addEventListener('click', generateBoard);
 
 
 

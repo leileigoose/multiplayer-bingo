@@ -10,13 +10,13 @@ router.get("/", (_request, response) => {
 });
 
 router.post("/", async (request,response) =>  {
-    const {gamename, max_players, password} = request.body;
+    const {gamename} = request.body;
     console.log(request.body);
     
     const gamecode = generateRandomCode(8);
 
     try {
-        await create_game(gamecode, gamename, max_players, password);
+        await create_game(gamecode, gamename);
         
         response.redirect(`/game/${gamecode}`);
     } catch (error) {
@@ -33,16 +33,15 @@ function generateRandomCode(len) {
     return code;
 }
 
-async function create_game(gamecode, gamename, max_players, password) {
+async function create_game(gamecode, gamename) {
 
     const db = configureDatabase();
     await db.connect();
-    console.log("Code, Name, max players, password:", gamecode, gamename, max_players, password);
+    console.log("Code, Name, max players, password:", gamecode, gamename);
     const query = {
-        text: "INSERT INTO game (game_code, game_name, max_players, password) VALUES ($1, $2, $3, $4)",
-        values: [gamecode, gamename, max_players, password],
+        text: "INSERT INTO game (game_code, game_name) VALUES ($1, $2)",
+        values: [gamecode, gamename],
     };
-
     const result = await db.query(query);
     console.log("Game created successfully!");
 }

@@ -131,6 +131,22 @@ io.on("connection", (socket) => {
         socket.emit("gamestarted", gamecode);
     });
 
+    socket.on("getPlayerCard", (playercardPayload) => {
+        const { game_id, player_id, is_winner} = playercardPayload;
+        db.query(
+            "INSERT INTO player_card (game_id, player_id, is_winner) VALUES ($1, $2, $3)",
+            [game_id, player_id, is_winner],
+            (error, result) => {
+                if (error) {
+                    socket.emit("game_card_exists", { message: "Game Card Already exists" });
+                } else {
+                    console.log("Got the players card");
+                }
+            }
+        );
+
+    });
+
     
     
 
