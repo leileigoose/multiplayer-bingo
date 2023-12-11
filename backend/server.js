@@ -72,6 +72,7 @@ const io = new websocket.Server(server, {
 io.on("connection", (socket) => {
     console.log("A user connected");
     const db = configureDatabase();
+    db.connect();
 
     socket.on("joinGame", (gamecode)=>{
         db.query("SELECT * FROM gamechat WHERE game_id = $1", [gamecode], (error, result) => {
@@ -84,7 +85,7 @@ io.on("connection", (socket) => {
                     timestamp: row.time_sent,
                     gamecode: row.game_id,
                 }));
-                console.log("emitting from gamechat: " + formattedMessages);
+                console.log("emitting from gamechat: " + formattedMessages)
                 socket.emit("previousMessages", formattedMessages);
             }
         })
@@ -96,10 +97,6 @@ io.on("connection", (socket) => {
         const timestamp = messageData.timestamp;
         const gamecode = messageData.gamecode;
         console.log(messageData);
-        db.connect((err) => {
-            if (err) {
-                console.error('db connection error:', err);
-            } else {
                 console.log('Connected to the database');
                 db.query("INSERT INTO gamechat (user_id, game_id, message, time_sent) VALUES ($1, $2, $3 , $4)", [sender, gamecode, content, timestamp], (error, result) => {
                     if (error) {
@@ -108,10 +105,7 @@ io.on("connection", (socket) => {
                         console.log('message inserted good');
                         io.emit("message", messageData);
                     }
-                    db.end();
                 });
-            }
-        });
     });
 
 
