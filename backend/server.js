@@ -94,6 +94,31 @@ db.on('notification', async (notification) => {
     }
 });
 
+db.query('LISTEN lobby_channel');
+
+db.on('notification', async (notification) => {
+  if (notification.channel === 'lobby_channel') {
+    console.log('Received new message notification for lobby:');
+    
+    const queryResult = await db.query(
+      'SELECT * FROM messages ORDER BY message_time DESC LIMIT 1',
+      []
+    );
+
+    if (queryResult.rows.length > 0) {
+      const latestMessage = queryResult.rows[0];
+      const formattedMessage = {
+        content: latestMessage.message_content,
+        sender: latestMessage.player_name,
+        timestamp: latestMessage.message_time,
+      };
+      // Emit the message to the client
+      io.emit('lobbymessage', formattedMessage);
+    }
+  }
+});
+
+
 io.on("connection", (socket) => {
     console.log("A user connected");
    
@@ -112,6 +137,22 @@ io.on("connection", (socket) => {
                     gamecode: row.game_id,
                 }));
                 io.emit("previousMessages", formattedMessages);
+            }
+        })
+    })
+
+    socket.on("joinLobby", ()=>{
+        db.query("SELECT * FROM messages ", [], (error, result) => {
+            if (error) {
+                console.error("Error getting gamechat messages", error);
+            } else {
+                const formattedMessages = result.rows.map((row) => ({
+                    content: row.message_content,
+                    sender: row.player_name,
+                    timestamp: row.message_time,
+                }));
+                console.log(formattedMessages); // TODO: take this out
+                io.emit("previousLobbyMessages", formattedMessages);
             }
         })
     })
@@ -309,6 +350,28 @@ io.on("connection", (socket) => {
         });
     });
     
+    socket.on("messageToLobbyDB", (messageData) => {
+        const content = messageData.content;
+        const sender = messageData.sender;
+        const timestamp = messageData.timestamp;
+    
+        console.log('Connected to the database');
+        db.query("INSERT INTO messages (player_name, message_content, message_time) VALUES ($1, $2, $3)", [sender, content, timestamp], (error, result) => {
+            if (error) {
+                console.error("Error saving message to the db:", error);
+            } else {
+                console.log('Message inserted successfully');
+                // Check if the message is not from the local user, then emit to clients
+                if (sender !== '<%= user.username.username %>') {
+                    const formattedMessage = {
+                        content: content,
+                        sender: sender,
+                        timestamp: timestamp,
+                    };
+                }
+            }
+        });
+    });
 
     socket.on("disconnect", () => {
         console.log("User disconnected");
