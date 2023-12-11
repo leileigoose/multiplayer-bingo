@@ -44,12 +44,19 @@
 });
 
 function pullBalls(){
-    socket.emit("pullball");
+    socket.emit("pullball", '<%=gamecode%>');
 }
 
 socket.on("ballNumber", (ballInfo) =>{
-    const string = ballInfo.ballNum.toString() + ballInfo.ballLetter.toString();
+    const string =  ballInfo.ballLetter.toString() + "  " + ballInfo.ballNum.toString();
     updateCountdown(string);
+    const playerBoardInfo = {
+        gamecode: '<%=gamecode%>',
+        player_id: '<%= user.username.username%>',
+        pulledBallNum: ballInfo.ballNum,
+        id: ''
+    }
+    socket.emit("checkPlayerBoard", playerBoardInfo)
 })
 
 function updateCountdown(countdownValue) {

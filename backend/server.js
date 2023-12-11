@@ -147,7 +147,7 @@ io.on("connection", (socket) => {
 
     });
 
-    socket.on("pullball", () => {
+    socket.on("pullball", (gamecode) => {
         db.query(
             "SELECT * FROM bingo_ball WHERE id NOT IN (SELECT bingo_ball_id FROM pulled_balls) ORDER BY RANDOM()LIMIT 1;",
             [],(error, result) =>{
@@ -159,13 +159,43 @@ io.on("connection", (socket) => {
                         ballNum: result.rows[0].id,
                         ballLetter: result.rows[0].letter
                     }
+                    db.query(
+                        "INSERT INTO pulled_balls (game_id, bingo_ball_id, time_pulled) VALUES ($1, $2, $3)",
+                        [gamecode, ballInfo.ballNum, new Date().toISOString().slice(0, 19).replace("T", " ")],
+                        (error, result) => {
+                            if(error){
+                                console.log("problems putting it into pulled_balls" + error);
+                            }else{
+                                console.log("Succesfully put into pulled_balls")
+                            }
+                        }
+                    )
                     socket.emit("ballNumber",ballInfo );
                 }
             }
         )
     })
 
+    socket.on("checkPlayerBoard", (data)=> {
+        db.query(
+            "SELECT pc.id FROM player_card pc JOIN game g ON pc.game_id = g.game_code WHERE g.game_code = $1 AND pc.player_id = $2;",
+            [data.gamecode, data.player_id],
+            (error, result) =>{
+                if(error){
+                    console.error("problem checking player_card to get id"+ erorr);
+                }else{
+                    data.id = result.rows[0].id;
+                    db.query(
+                        "UPDATE is_stamp WHERE (bingo_ball_id, player_card_id)",
+                        [data.pulledBallNum, ]
+                    )
+                }
+            }
+        )
+    })
+
     socket.on("cardspotting", (playercardPayload) => {
+        let isStamp = false;
         db.query(
             "SELECT pc.id FROM player_card pc JOIN game g ON pc.game_id = g.game_code WHERE g.game_code = $1 AND pc.player_id = $2;",
             [playercardPayload.game_id, playercardPayload.player_id],
@@ -174,10 +204,12 @@ io.on("connection", (socket) => {
                 console.error("Error looking up player_card_id:", error);
               } else if (result.rows.length > 0) {
                 const playerCardId = result.rows[0].id;
-          
+                if(playercardPayload.spot_id == 13){
+                    isStamp = true;
+                }
                 db.query(
                   "INSERT INTO card_spot (player_card_id, bingo_ball_id, is_stamp, spot_id) VALUES ($1, $2, $3, $4)",
-                  [playerCardId, playercardPayload.randomNum, isStamp=false, playercardPayload.spot_id],
+                  [playerCardId, playercardPayload.randomNum, isStamp, playercardPayload.spot_id],
                   (insertError, insertResult) => {
                     if (insertError) {
                       console.error("Error inserting into card_spot:", insertError);
