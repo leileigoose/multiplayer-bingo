@@ -6,6 +6,7 @@ body{
     border-radius: 25px;
     border-color: #456a53;
     padding: 10px;
+    font-family: 'ADLaM Display';
 }
 
 main{
@@ -69,3 +70,28 @@ a:link {
     cursor: pointer;
     border-radius: 12px;
   }
+
+  .message-input {
+    margin: 40px;
+    position: relative;
+    width: 200px;
+    height: auto;
+    background-color: lightyellow;
+    padding: 12px 20px;
+    border-radius: 30px;
+  }
+
+  .chat-msg {
+    list-style: none;
+    text-align: center;
+    display: grid;
+    margin: 40px;
+    position: relative;
+    height: auto;
+    background-color: lightyellow;
+    padding: 12px 20px;
+    border-radius: 30px;
+  }
+
+
+

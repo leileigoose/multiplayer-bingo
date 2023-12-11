@@ -1,7 +1,7 @@
 
 <form>
-    <input type="text" placeholder="Your Message">
-    <button id="sendMessage">Send</button>
+    <input class="message-input" type="text" placeholder="Your Message">
+    <button class="header-button" id="sendMessage">Send</button>
 </form>
 
 <ul></ul>
@@ -36,6 +36,7 @@
         const gamecode = messageData.gamecode;
 
         const li = document.createElement('li');
+        li.classList.add('chat-msg');
         li.textContent = timestamp + ' ' + sender + ' ' + content ;
         console.log(messageData);
         document.querySelector('ul').appendChild(li);
@@ -49,6 +50,7 @@
 
     function appendMessageToUI(messageData){
         const li = document.createElement('li');
+        li.classList.add('chat-msg');
         li.textContent = messageData.timestamp + ' ' + messageData.sender + ' ' + messageData.content;
         document.querySelector('ul').appendChild(li);
     }
