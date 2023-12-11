@@ -210,7 +210,7 @@ io.on("connection", (socket) => {
                                 ];
                                 winningCombinations.forEach(combination => {
                                     const query = {
-                                        text: "SELECT COUNT(*) AS count FROM card_spot WHERE spot_id IN ($1, $2, $3, $4, $5)",
+                                        text: "SELECT COUNT(DISTINCT spot_id) AS count FROM card_spot WHERE spot_id IN ($1, $2, $3, $4, $5) AND is_stamp = true",
                                         values: combination
                                     };
                                 
@@ -219,8 +219,9 @@ io.on("connection", (socket) => {
                                             console.error("Error executing query:", error);
                                             // Handle the error as needed
                                         } else {
+                                            console.log("Checking!" + result.rows[0].count);
                                             const count = result.rows[0].count;
-                                            if (count === 5) {
+                                            if (count == 5) {
                                                 console.log("Winning combination found:", combination);
                                                 db.query(
                                                     "UPDATE player_card SET is_winner=true WHERE game_id = $1 AND player_id = $2",

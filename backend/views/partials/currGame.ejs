@@ -39,7 +39,7 @@
            updateCountdown('Game Start');
             postCountdownInterval = setInterval(() => {
                pullBalls();
-            }, 5000);
+            }, 500);
 
         }
     }, 1000);
@@ -78,10 +78,9 @@ for (let i = 0; i < 5; i++) {
 })
 
 socket.on("WinnerWinner", (data)=> {
-    if(postCountdownInterval){
-        clearInterval(postCountdownInterval);
-    }
-    updateCountdown("WINER WINER: " + data);
+    clearInterval(postCountdownInterval);
+    updateCountdown("WINNER WINNER: " + data);
+    socket.off("pullball");
 })
 
 function updateCountdown(countdownValue) {
