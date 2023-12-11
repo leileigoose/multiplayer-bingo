@@ -9,6 +9,11 @@ body{
     font-family: 'ADLaM Display';
 }
 
+nav{
+  background-color: rgb(98, 98, 98);;
+  border-radius: 25px;
+}
+
 main{
     background-color:rgb(68, 68, 68);
     color:black;
