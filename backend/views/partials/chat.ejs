@@ -36,6 +36,9 @@
         const gamecode = messageData.gamecode;
 
         const li = document.createElement('li');
+            //if('<%= user.username.username%>' == _request.session.user){
+         //   li.classList.add('')
+        //}
         li.classList.add('chat-msg');
         li.textContent = timestamp + ' ' + sender + ' ' + content ;
         console.log(messageData);
