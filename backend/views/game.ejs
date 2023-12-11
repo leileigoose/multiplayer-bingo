@@ -1,3 +1,5 @@
+<%- include('template', { pageTitle: 'In Game', pageContent:'' }) %>
+
 <!DOCTYPE html>
 <%- include ('template', { pageTitle: 'Lobby', pageContent:''}) %>
 <html lang="en">
@@ -10,5 +12,6 @@
 <body>
     <h1>Welcome to the Game!</h1>
     <%- include ('./partials/chat.ejs', {gamecode}) %>
+    <%- include ('./partials/currGame.ejs', {gamecode})%>
 </body>
 </html>

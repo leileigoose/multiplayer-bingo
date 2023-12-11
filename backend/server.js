@@ -68,10 +68,35 @@ const io = new websocket.Server(server, {
     }
 });
 
+
 io.on("connection", (socket) => {
     console.log("A user connected");
     const db = configureDatabase();
     db.connect();
+
+    db.query('LISTEN gamechat_channel');
+
+    db.on('notification', async (notification) => {
+        const gameCode = notification.payload;
+        console.log('Received new message notification for game:', gameCode);
+    
+        const queryResult = await db.query(
+            'SELECT * FROM gamechat WHERE game_id = $1 ORDER BY time_sent DESC LIMIT 1',
+            [gameCode]
+        );
+    
+        if (queryResult.rows.length > 0) {
+            const latestMessage = queryResult.rows[0];
+            const formattedMessage = {
+                content: latestMessage.message,
+                sender: latestMessage.user_id,
+                timestamp: latestMessage.time_sent,
+                gamecode: latestMessage.game_id,
+            };
+            io.emit('message', formattedMessage);
+        }
+    });
+    
 
     socket.on("joinGame", (gamecode)=>{
         db.query("SELECT * FROM gamechat WHERE game_id = $1", [gamecode], (error, result) => {
@@ -84,29 +109,201 @@ io.on("connection", (socket) => {
                     timestamp: row.time_sent,
                     gamecode: row.game_id,
                 }));
-                console.log("emitting from gamechat: " + formattedMessages)
                 socket.emit("previousMessages", formattedMessages);
             }
         })
     })
 
-    socket.on("message", (messageData) => {
+    socket.on("gamestartDB", (gamestartPayload) => {
+        const { timestamp, gamecode } = gamestartPayload;
+        db.query(
+            "UPDATE game SET started_at = $1 WHERE game_code = $2",
+            [timestamp, gamecode],
+            (error, result) => {
+                if (error) {
+                    console.error("Error updating game start time:", error);
+                } else {
+                    console.log("Game start time updated successfully");
+                }
+            }
+        );
+        socket.emit("gamestarted", gamecode);
+    });
+
+    socket.on("getPlayerCard", (playercardPayload) => {
+        const { game_id, player_id, is_winner} = playercardPayload;
+        db.query(
+            "INSERT INTO player_card (game_id, player_id, is_winner) VALUES ($1, $2, $3)",
+            [game_id, player_id, is_winner],
+            (error, result) => {
+                if (error) {
+                    socket.emit("game_card_exists", { message: "Game Card Already exists" });
+                } else {
+                    console.log("Got the players card");
+                }
+            }
+        );
+
+    });
+
+    socket.on("pullball", (gamecode) => {
+        db.query(
+            "SELECT * FROM bingo_ball WHERE id NOT IN (SELECT bingo_ball_id FROM pulled_balls) ORDER BY RANDOM()LIMIT 1;",
+            [],(error, result) =>{
+                if (error) {
+                    console.log('error from pullball');
+                } else {
+                    console.log("RESULT from pullball: "+  result.rows[0].id + ' '+ result.rows[0].letter);
+                    const ballInfo = {
+                        ballNum: result.rows[0].id,
+                        ballLetter: result.rows[0].letter
+                    }
+                    db.query(
+                        "INSERT INTO pulled_balls (game_id, bingo_ball_id, time_pulled) VALUES ($1, $2, $3)",
+                        [gamecode, ballInfo.ballNum, new Date().toISOString().slice(0, 19).replace("T", " ")],
+                        (error, result) => {
+                            if(error){
+                                console.log("problems putting it into pulled_balls" + error);
+                            }else{
+                                console.log("Succesfully put into pulled_balls")
+                            }
+                        }
+                    )
+                    socket.emit("ballNumber",ballInfo );
+                }
+            }
+        )
+    })
+
+    socket.on("checkPlayerBoard", (data)=> {
+        db.query(
+            "SELECT pc.id FROM player_card pc JOIN game g ON pc.game_id = g.game_code WHERE g.game_code = $1 AND pc.player_id = $2;",
+            [data.gamecode, data.player_id],
+            (error, result) =>{
+                if(error){
+                    console.error("problem checking player_card to get id"+ erorr);
+                }else{
+                    data.id = result.rows[0].id;
+                    db.query(
+                        "UPDATE card_spot SET is_stamp = true WHERE bingo_ball_id = $1 AND player_card_id = $2",
+                        [data.pulledBallNum, data.id ],
+                        (error,result)=> {
+                            if(error){
+                                console.error("error updating is_stamp" + error);
+                            }else{
+                                console.log("is_Stamp Updated!");
+                                // check if winner here from db
+                                const winningCombinations = [
+                                    [1, 2, 3, 4, 5],
+                                    [6, 7, 8, 9, 10],
+                                    [11, 12, 13, 14, 15],
+                                    [16, 17, 18, 19, 20],
+                                    [21, 22, 23, 24, 25],
+                                    [1, 6, 11, 16, 21],
+                                    [2, 7, 12, 17, 22],
+                                    [3, 8, 13, 18, 23],
+                                    [4, 9, 14, 19, 24],
+                                    [5, 10, 15, 20, 25],
+                                    [1, 7, 13, 19, 25],
+                                    [5, 9, 13, 17, 21]
+                                ];
+                                winningCombinations.forEach(combination => {
+                                    const query = {
+                                        text: "SELECT COUNT(*) AS count FROM card_spots WHERE spot_id IN ($1, $2, $3, $4, $5)",
+                                        values: combination
+                                    };
+                                
+                                    db.query(query, (error, result) => {
+                                        if (error) {
+                                            console.error("Error executing query:", error);
+                                            // Handle the error as needed
+                                        } else {
+                                            const count = result.rows[0].count;
+                                            if (count === 5) {
+                                                console.log("Winning combination found:", combination);
+                                                db.query(
+                                                    "UPDATE player_card SET is_winner=true WHERE game_id = $1 AND player_id = $2",
+                                                    [data.gamecode, data.player_id],
+                                                    (error, result) => {
+                                                        if(error){
+                                                            console.error("Failed to update Winner" + error);
+                                                        }else{
+                                                            socket.emit("WinnerWinner");
+                                                        }
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    });
+                                });
+                            }
+                        }
+                    )
+                }
+            }
+        )
+    })
+
+    socket.on("cardspotting", (playercardPayload) => {
+        let isStamp = false;
+        db.query(
+            "SELECT pc.id FROM player_card pc JOIN game g ON pc.game_id = g.game_code WHERE g.game_code = $1 AND pc.player_id = $2;",
+            [playercardPayload.game_id, playercardPayload.player_id],
+            (error, result) => {
+              if (error) {
+                console.error("Error looking up player_card_id:", error);
+              } else if (result.rows.length > 0) {
+                const playerCardId = result.rows[0].id;
+                if(playercardPayload.spot_id == 13){
+                    isStamp = true;
+                }
+                db.query(
+                  "INSERT INTO card_spot (player_card_id, bingo_ball_id, is_stamp, spot_id) VALUES ($1, $2, $3, $4)",
+                  [playerCardId, playercardPayload.randomNum, isStamp, playercardPayload.spot_id],
+                  (insertError, insertResult) => {
+                    if (insertError) {
+                      console.error("Error inserting into card_spot:", insertError);
+                      socket.emit("card_spot_insert_failed", { message: "Failed to insert into card_spot" });
+                    } else {
+                      console.log("Successfully inserted into card_spot");
+                    }
+                  }
+                );
+              } else {
+                console.log("Player card not found for the given game_code and player_id");
+              }
+            }
+          );
+
+    })
+    
+    
+
+    socket.on("messageToDB", (messageData) => {
         const content = messageData.content;
         const sender = messageData.sender;
         const timestamp = messageData.timestamp;
         const gamecode = messageData.gamecode;
-        console.log(messageData);
-                console.log('Connected to the database');
-                db.query("INSERT INTO gamechat (user_id, game_id, message, time_sent) VALUES ($1, $2, $3 , $4)", [sender, gamecode, content, timestamp], (error, result) => {
-                    if (error) {
-                        console.error("frror saving message to the db:", error);
-                    } else {
-                        console.log('message inserted good');
-                        io.emit("message", messageData);
-                    }
-                });
+    
+        console.log('Connected to the database');
+        db.query("INSERT INTO gamechat (user_id, game_id, message, time_sent) VALUES ($1, $2, $3 , $4)", [sender, gamecode, content, timestamp], (error, result) => {
+            if (error) {
+                console.error("Error saving message to the db:", error);
+            } else {
+                console.log('Message inserted successfully');
+                // Check if the message is not from the local user, then emit to clients
+                if (sender !== '<%= user.username.username %>') {
+                    const formattedMessage = {
+                        content: content,
+                        sender: sender,
+                        timestamp: timestamp,
+                        gamecode: gamecode,
+                    };
+                }
+            }
+        });
     });
-
+    
     socket.on("active_games", (player_id) => {
         console.log("Fetching games for", player_id);
         const query = {

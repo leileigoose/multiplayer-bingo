@@ -6,6 +6,12 @@ body{
     border-radius: 25px;
     border-color: #456a53;
     padding: 10px;
+    font-family: 'ADLaM Display';
+}
+
+nav{
+  background-color: rgb(98, 98, 98);;
+  border-radius: 25px;
 }
 
 main{
@@ -69,3 +75,41 @@ a:link {
     cursor: pointer;
     border-radius: 12px;
   }
+
+  .message-input {
+    margin: 40px;
+    position: relative;
+    width: 200px;
+    height: auto;
+    background-color: lightyellow;
+    padding: 12px 20px;
+    border-radius: 30px;
+  }
+
+  .chat-msg {
+    list-style: none;
+    text-align: center;
+    display: grid;
+    margin: 40px;
+    position: relative;
+    height: auto;
+    background-color: lightyellow;
+    padding: 12px 20px;
+    border-radius: 30px;
+  }
+
+  #tblBingo {
+    border-collapse: collapse;
+}
+
+.main-table-cell {
+    border: 1px solid black;
+    text-align: center;
+    padding: 10px; /* Adjust padding for the cells */
+    display: inline-block; /* Display cells as inline-block */
+}
+
+.cell-format {
+    font-size: 16px; /* Adjust font size for the cells */
+}
+

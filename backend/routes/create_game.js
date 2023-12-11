@@ -10,7 +10,7 @@ router.get("/", (_request, response) => {
 });
 
 router.post("/", async (request,response) =>  {
-    const {gamename, password} = request.body;
+    const {gamename} = request.body;
     console.log(request.body);
     
     const gamecode = generateRandomCode(8);

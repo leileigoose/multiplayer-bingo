@@ -1,0 +1,149 @@
+<span> 
+    <button class="game-start" id="gamestart">Game Start</button>
+    <button class="create-playercard" id="playercard"> Create Player Card</button>
+    <button class="create-board" id="create-board"> Create Board</button>
+    <br>
+    <span style="border: 5ch;"></span>
+    <h1 id="countdown">YOOOOO</h1>
+    <table id="tblBingo"></table>
+</span>
+
+
+<script>
+    const countdownElement = document.getElementById('countdown');
+    let arr = Array.apply(null, { length: 26 }).map(Number.call, Number);
+    const table = document.querySelector("tblBingo")
+    function gamestart(e) {
+        e.preventDefault();
+        const gamestartPayload = { 
+        gamecode : '<%=gamecode%>',
+        timestamp : new Date().toISOString().slice(0, 19).replace("T", " ") 
+        }// Format as 'YYYY-MM-DD HH:MI:SS'
+        socket.emit("gamestartDB",gamestartPayload);
+    }
+
+    socket.on("gamestarted", (gamecode) => {
+    let countdownValue = 3;
+
+    updateCountdown(countdownValue);
+
+    const countdownInterval = setInterval(() => {
+        countdownValue--;
+
+        updateCountdown(countdownValue);
+
+        if (countdownValue <= 0) {
+            clearInterval(countdownInterval);
+           updateCountdown('Game Start');
+           const postCountdownInterval = setInterval(() => {
+               pullBalls();
+            }, 5000);
+
+        }
+    }, 1000);
+});
+
+function pullBalls(){
+    socket.emit("pullball", '<%=gamecode%>');
+}
+
+socket.on("ballNumber", (ballInfo) =>{
+    const string =  ballInfo.ballLetter.toString() + "  " + ballInfo.ballNum.toString();
+    updateCountdown(string);
+    const playerBoardInfo = {
+        gamecode: '<%=gamecode%>',
+        player_id: '<%= user.username.username%>',
+        pulledBallNum: ballInfo.ballNum,
+        id: ''
+    }
+    socket.emit("checkPlayerBoard", playerBoardInfo)
+})
+
+function updateCountdown(countdownValue) {
+    countdownElement.textContent = countdownValue;
+}
+    socket.on("player_card_id", (id)=>{
+
+    })
+
+    function getPlayerCard(e){
+        e.preventDefault();
+        const playercardPayload = {
+            game_id: '<%=gamecode%>',
+            player_id: '<%= user.username.username%>',
+            is_winner: 'f'
+        }
+        socket.emit("getPlayerCard", playercardPayload);
+    }
+
+    socket.on("game_card_exists", (data) => {
+    alert(data.message);
+    });
+
+    function generateBoard(table) {
+        const usedNumbers = []; 
+        const playercardPayload = {
+            game_id: '<%=gamecode%>',
+            player_id: '<%= user.username.username%>',
+            is_winner: 'f',
+            randomNum: '',
+            spot_id: ''
+        }
+
+        for (let i = 0; i < 5; i++) {
+        let tr = document.createElement("tr");
+        table.appendChild(tr);
+
+        for (let j = 0; j < 5; j++) {
+            let td = document.createElement("td");
+            td.id = "cell-" + i + "-" + j;
+            td.classList.add("main-table-cell");
+
+            let div = document.createElement("div");
+            div.classList.add("cell-format");
+
+            const randomNumber = generateUniqueRandomNumber(usedNumbers, j * 15 + 1, (j + 1) * 15);
+            usedNumbers.push(randomNumber); // Add the number to the usedNumbers array
+
+            div.textContent = randomNumber.toString();
+            
+            // Assuming playercardPayload is defined outside this function
+            playercardPayload.randomNum = randomNumber.toString();
+            playercardPayload.spot_id = (i + 1) + (j * 5);
+
+            td.appendChild(div);
+            tr.appendChild(td);
+
+            socket.emit("cardspotting", playercardPayload);
+        }
+    }
+}
+
+// Function to generate unique random numbers within a range
+function generateUniqueRandomNumber(usedNumbers, min, max) {
+    let randomNumber;
+    do {
+        randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    } while (usedNumbers.includes(randomNumber)); // Check if the number is already used
+    return randomNumber;
+}
+
+
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+
+document.getElementById('gamestart').addEventListener('click', gamestart);
+
+document.getElementById('playercard').addEventListener('click', getPlayerCard);
+
+document.getElementById('create-board').addEventListener('click', function() {
+    const table = document.querySelector("#tblBingo");
+    generateBoard(table);
+});
+
+
+
+</script>
