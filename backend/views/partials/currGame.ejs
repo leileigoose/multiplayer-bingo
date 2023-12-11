@@ -81,6 +81,7 @@ function updateCountdown(countdownValue) {
     });
 
     function generateBoard(table) {
+        const usedNumbers = []; 
         const playercardPayload = {
             game_id: '<%=gamecode%>',
             player_id: '<%= user.username.username%>',
@@ -89,7 +90,7 @@ function updateCountdown(countdownValue) {
             spot_id: ''
         }
 
-    for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 5; i++) {
         let tr = document.createElement("tr");
         table.appendChild(tr);
 
@@ -101,20 +102,32 @@ function updateCountdown(countdownValue) {
             let div = document.createElement("div");
             div.classList.add("cell-format");
 
-            const randomNumber = getRandomNumber(j * 15 + 1, (j + 1) * 15);
+            const randomNumber = generateUniqueRandomNumber(usedNumbers, j * 15 + 1, (j + 1) * 15);
+            usedNumbers.push(randomNumber); // Add the number to the usedNumbers array
+
             div.textContent = randomNumber.toString();
+            
+            // Assuming playercardPayload is defined outside this function
             playercardPayload.randomNum = randomNumber.toString();
-            console.log("COORDINATE Xi: "+ i + "COORDINATE Yj: " + j + "NUM GENERATED: " + playercardPayload.randomNum);
-            playercardPayload.spot_id = (i+1) + (j*5)
+            playercardPayload.spot_id = (i + 1) + (j * 5);
 
             td.appendChild(div);
             tr.appendChild(td);
-            
-            socket.emit("cardspotting",(playercardPayload));
+
+            socket.emit("cardspotting", playercardPayload);
         }
     }
-    console.log("BUTTON CLICKED");
 }
+
+// Function to generate unique random numbers within a range
+function generateUniqueRandomNumber(usedNumbers, min, max) {
+    let randomNumber;
+    do {
+        randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+    } while (usedNumbers.includes(randomNumber)); // Check if the number is already used
+    return randomNumber;
+}
+
 
 function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;

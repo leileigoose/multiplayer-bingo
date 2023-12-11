@@ -186,8 +186,59 @@ io.on("connection", (socket) => {
                 }else{
                     data.id = result.rows[0].id;
                     db.query(
-                        "UPDATE is_stamp WHERE (bingo_ball_id, player_card_id)",
-                        [data.pulledBallNum, ]
+                        "UPDATE card_spot SET is_stamp = true WHERE bingo_ball_id = $1 AND player_card_id = $2",
+                        [data.pulledBallNum, data.id ],
+                        (error,result)=> {
+                            if(error){
+                                console.error("error updating is_stamp" + error);
+                            }else{
+                                console.log("is_Stamp Updated!");
+                                // check if winner here from db
+                                const winningCombinations = [
+                                    [1, 2, 3, 4, 5],
+                                    [6, 7, 8, 9, 10],
+                                    [11, 12, 13, 14, 15],
+                                    [16, 17, 18, 19, 20],
+                                    [21, 22, 23, 24, 25],
+                                    [1, 6, 11, 16, 21],
+                                    [2, 7, 12, 17, 22],
+                                    [3, 8, 13, 18, 23],
+                                    [4, 9, 14, 19, 24],
+                                    [5, 10, 15, 20, 25],
+                                    [1, 7, 13, 19, 25],
+                                    [5, 9, 13, 17, 21]
+                                ];
+                                winningCombinations.forEach(combination => {
+                                    const query = {
+                                        text: "SELECT COUNT(*) AS count FROM card_spots WHERE spot_id IN ($1, $2, $3, $4, $5)",
+                                        values: combination
+                                    };
+                                
+                                    db.query(query, (error, result) => {
+                                        if (error) {
+                                            console.error("Error executing query:", error);
+                                            // Handle the error as needed
+                                        } else {
+                                            const count = result.rows[0].count;
+                                            if (count === 5) {
+                                                console.log("Winning combination found:", combination);
+                                                db.query(
+                                                    "UPDATE player_card SET is_winner=true WHERE game_id = $1 AND player_id = $2",
+                                                    [data.gamecode, data.player_id],
+                                                    (error, result) => {
+                                                        if(error){
+                                                            console.error("Failed to update Winner" + error);
+                                                        }else{
+                                                            socket.emit("WinnerWinner");
+                                                        }
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    });
+                                });
+                            }
+                        }
                     )
                 }
             }
