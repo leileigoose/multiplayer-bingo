@@ -37,11 +37,13 @@ async function create_game(gamecode, gamename) {
 
     const db = configureDatabase();
     await db.connect();
-    console.log("Code, Name, max players, password:", gamecode, gamename);
+    console.log("Code, Name:", gamecode, gamename);
+    const created_at = Date.now();
     const query = {
-        text: "INSERT INTO game (game_code, game_name) VALUES ($1, $2)",
-        values: [gamecode, gamename],
+        text: "INSERT INTO game (game_code, game_name, created_at) VALUES ($1, $2, $3)",
+        values: [gamecode, gamename, created_at],
     };
+
     const result = await db.query(query);
     console.log("Game created successfully!");
 }

@@ -2,11 +2,16 @@
     <button class="game-start" id="gamestart">Game Start</button>
     <button class="create-playercard" id="playercard"> Create Player Card</button>
     <button class="create-board" id="create-board"> Create Board</button>
+    <br>
+    <span style="border: 5ch;"></span>
+    <h1 id="countdown">YOOOOO</h1>
     <table id="tblBingo"></table>
 </span>
 
 
 <script>
+    const countdownElement = document.getElementById('countdown');
+    let arr = Array.apply(null, { length: 26 }).map(Number.call, Number);
     const table = document.querySelector("tblBingo")
     function gamestart(e) {
         e.preventDefault();
@@ -17,10 +22,37 @@
         socket.emit("gamestartDB",gamestartPayload);
     }
 
-    socket.on("gamestart", (gamecode) => {
-        // for the game add a trigger listener
-        // then mark it on the right player_id and game_code
-    }) 
+    socket.on("gamestarted", (gamecode) => {
+    let countdownValue = 3;
+
+    updateCountdown(countdownValue);
+
+    const countdownInterval = setInterval(() => {
+        countdownValue--;
+
+        updateCountdown(countdownValue);
+
+        if (countdownValue <= 0) {
+            clearInterval(countdownInterval);
+           updateCountdown('Game Start');
+           const postCountdownInterval = setInterval(() => {
+               pullBalls();
+            }, 1000);
+
+        }
+    }, 1000);
+});
+
+function pullBalls(){
+    socket.emit("pullball");
+}
+
+function updateCountdown(countdownValue) {
+    countdownElement.textContent = countdownValue;
+}
+    socket.on("player_card_id", (id)=>{
+
+    })
 
     function getPlayerCard(e){
         e.preventDefault();
@@ -36,29 +68,45 @@
     alert(data.message);
     });
 
-    function generateBoard() {
+    function generateBoard(table) {
+        const playercardPayload = {
+            game_id: '<%=gamecode%>',
+            player_id: '<%= user.username.username%>',
+            is_winner: 'f',
+            randomNum: '',
+            spot_id: ''
+        }
+
+    for (let i = 0; i < 5; i++) {
         let tr = document.createElement("tr");
         table.appendChild(tr);
-        for (i = 0; i < 5; i++) {
-           
 
-            for (j = 0; j < 5; j++) {
-            let td = document.createElement("td")
-            td.id = arr[iterator].toString()
-            td.style.height = "20%"
-            td.style.width = "20%"
-            td.classList.add("main-table-cell")
+        for (let j = 0; j < 5; j++) {
+            let td = document.createElement("td");
+            td.id = "cell-" + i + "-" + j;
+            td.classList.add("main-table-cell");
 
-            let div = document.createElement("div")
-            div.classList.add("cell-format")
-            div.textContent = arr[iterator].toString()
-            td.appendChild(div)
-            tr.appendChild(td)
-            iterator++;
-            }
+            let div = document.createElement("div");
+            div.classList.add("cell-format");
+
+            const randomNumber = getRandomNumber(j * 15 + 1, (j + 1) * 15);
+            div.textContent = randomNumber.toString();
+            playercardPayload.randomNum = randomNumber.toString();
+            console.log("COORDINATE Xi: "+ i + "COORDINATE Yj: " + j + "NUM GENERATED: " + playercardPayload.randomNum);
+            playercardPayload.spot_id = (i+1) + (j*5)
+
+            td.appendChild(div);
+            tr.appendChild(td);
+            
+            socket.emit("cardspotting",(playercardPayload));
         }
-        console.log("BUTTOIN MASHED")
     }
+    console.log("BUTTON CLICKED");
+}
+
+function getRandomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 
 
@@ -66,8 +114,10 @@ document.getElementById('gamestart').addEventListener('click', gamestart);
 
 document.getElementById('playercard').addEventListener('click', getPlayerCard);
 
-document.getElementById('create-board').addEventListener('click', generateBoard);
-
+document.getElementById('create-board').addEventListener('click', function() {
+    const table = document.querySelector("#tblBingo");
+    generateBoard(table);
+});
 
 
 

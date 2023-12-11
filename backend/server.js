@@ -147,6 +147,37 @@ io.on("connection", (socket) => {
 
     });
 
+    socket.on
+
+    socket.on("cardspotting", (playercardPayload) => {
+        db.query(
+            "SELECT pc.id FROM player_card pc JOIN game g ON pc.game_id = g.game_code WHERE g.game_code = $1 AND pc.player_id = $2;",
+            [playercardPayload.game_id, playercardPayload.player_id],
+            (error, result) => {
+              if (error) {
+                console.error("Error looking up player_card_id:", error);
+              } else if (result.rows.length > 0) {
+                const playerCardId = result.rows[0].id;
+          
+                db.query(
+                  "INSERT INTO card_spot (player_card_id, bingo_ball_id, is_stamp, spot_id) VALUES ($1, $2, $3, $4)",
+                  [playerCardId, playercardPayload.randomNum, isStamp=false, playercardPayload.spot_id],
+                  (insertError, insertResult) => {
+                    if (insertError) {
+                      console.error("Error inserting into card_spot:", insertError);
+                      socket.emit("card_spot_insert_failed", { message: "Failed to insert into card_spot" });
+                    } else {
+                      console.log("Successfully inserted into card_spot");
+                    }
+                  }
+                );
+              } else {
+                console.log("Player card not found for the given game_code and player_id");
+              }
+            }
+          );
+
+    })
     
     
 

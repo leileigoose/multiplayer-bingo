@@ -26,7 +26,9 @@
         input.value = "";
     }
     input.focus();
-}
+    }
+
+    
     document.getElementById('sendMessage').addEventListener('click', sendMessage);
     // listening for mesages from the serverrrr
     socket.on("message", (messageData) => {

@@ -98,5 +98,18 @@ a:link {
     border-radius: 30px;
   }
 
+  #tblBingo {
+    border-collapse: collapse;
+}
 
+.main-table-cell {
+    border: 1px solid black;
+    text-align: center;
+    padding: 10px; /* Adjust padding for the cells */
+    display: inline-block; /* Display cells as inline-block */
+}
+
+.cell-format {
+    font-size: 16px; /* Adjust font size for the cells */
+}
 
