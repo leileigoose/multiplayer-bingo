@@ -210,7 +210,7 @@ io.on("connection", (socket) => {
                                 ];
                                 winningCombinations.forEach(combination => {
                                     const query = {
-                                        text: "SELECT COUNT(*) AS count FROM card_spots WHERE spot_id IN ($1, $2, $3, $4, $5)",
+                                        text: "SELECT COUNT(*) AS count FROM card_spot WHERE spot_id IN ($1, $2, $3, $4, $5)",
                                         values: combination
                                     };
                                 
