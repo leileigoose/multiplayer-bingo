@@ -110,7 +110,7 @@ io.on("connection", (socket) => {
                     timestamp: row.time_sent,
                     gamecode: row.game_id,
                 }));
-                socket.emit("previousMessages", formattedMessages);
+                io.emit("previousMessages", formattedMessages);
             }
         })
     })
@@ -128,7 +128,7 @@ io.on("connection", (socket) => {
                 }
             }
         );
-        socket.emit("gamestarted", gamecode);
+        io.emit("gamestarted", gamecode);
     });
 
     socket.on("getPlayerCard", (playercardPayload) => {
@@ -170,7 +170,7 @@ io.on("connection", (socket) => {
                             }
                         }
                     )
-                    socket.emit("ballNumber",ballInfo );
+                    io.emit("ballNumber",ballInfo );
                 }
             }
         )
@@ -224,7 +224,7 @@ io.on("connection", (socket) => {
                                             if (count == 5) {
                                                 console.log("Winning combination found:", combination);
                                                 const winner_id = data.player_id;
-                                                socket.emit("WinnerWinner",winner_id);
+                                                io.emit("WinnerWinner",winner_id);
                                                 db.query(
                                                     "UPDATE player_card SET is_winner=true WHERE game_id = $1 AND player_id = $2",
                                                     [data.gamecode, data.player_id],
@@ -233,7 +233,7 @@ io.on("connection", (socket) => {
                                                             console.error("Failed to update Winner" + error);
                                                         }else{
                                                             const winner_id = data.player_id;
-                                                            socket.emit("WinnerWinner",winner_id);
+                                                            io.emit("WinnerWinner",winner_id);
                                                         }
                                                     }
                                                 )
