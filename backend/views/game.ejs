@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<%- include ('template', { pageTitle: 'Lobby', pageContent:''}) %>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +8,6 @@
     <title> <%= pageTitle %> </title>
 </head>
 <body>
-    <%- include ('./partials/navbar.ejs', { pageTitle: 'In Game', pageContent:'GAME TIME'})%>
     <h1>Welcome to the Game!</h1>
     <%- include ('./partials/chat.ejs', {gamecode}) %>
 </body>

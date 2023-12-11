@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<%- include ('template', { pageTitle: 'Lobby', pageContent:''}) %>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,8 +8,23 @@
     <title> <%= pageTitle %> </title>
 </head>
 <body>
-    <%- include ('./partials/navbar.ejs', { pageTitle: 'In Game', pageContent:'GAME TIME'})%>
     <h1>Here are your active games</h1>
-    <%- include ('./partials/active_game_list')%>
+    <ul></ul>
+    <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+
+    <script>
+        const socket = io.connect("http://localhost:3000");
+        socket.emit("active_games", user.username.username);
+        console.log("WE MADE IT", user.username);
+        socket.on("why", (data) => {
+        data.array.forEach(element => {
+            const li = document.createElement('li');
+            li.textContent = element.game_name;
+            const a = document.createElement('a');
+            a.setAttribute("href=/game/" + element.game_code);
+            document.querySelector('ul').appendChild(li);
+        });
+    });
+    </script>
 </body>
 </html>

@@ -16,7 +16,7 @@ router.post("/", async (request,response) =>  {
     const gamecode = generateRandomCode(8);
 
     try {
-        await create_game(gamecode, gamename, password);
+        await create_game(gamecode, gamename);
         
         response.redirect(`/game/${gamecode}`);
     } catch (error) {
@@ -38,7 +38,7 @@ async function create_game(gamecode, gamename) {
     const db = configureDatabase();
     await db.connect();
     console.log("Code, Name:", gamecode, gamename);
-    created_at = Date.now();
+    const created_at = Date.now();
     const query = {
         text: "INSERT INTO game (game_code, game_name, created_at) VALUES ($1, $2, $3)",
         values: [gamecode, gamename, created_at],
