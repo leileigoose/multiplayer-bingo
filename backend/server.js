@@ -71,13 +71,30 @@ const io = new websocket.Server(server, {
 
 io.on("connection", (socket) => {
     console.log("A user connected");
+    const db = configureDatabase();
+
+    socket.on("joinGame", (gamecode)=>{
+        db.query("SELECT * FROM gamechat WHERE game_id = $1", [gamecode], (error, result) => {
+            if (error) {
+                console.error("Error getting gamechat messages", error);
+            } else {
+                const formattedMessages = result.rows.map((row) => ({
+                    content: row.message,
+                    sender: row.user_id,
+                    timestamp: row.time_sent,
+                    gamecode: row.game_id,
+                }));
+                console.log("emitting from gamechat: " + formattedMessages);
+                socket.emit("previousMessages", formattedMessages);
+            }
+        })
+    })
 
     socket.on("message", (messageData) => {
         const content = messageData.content;
         const sender = messageData.sender;
         const timestamp = messageData.timestamp;
         const gamecode = messageData.gamecode;
-        const db = configureDatabase();
         console.log(messageData);
         db.connect((err) => {
             if (err) {
