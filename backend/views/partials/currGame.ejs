@@ -79,8 +79,8 @@ for (let i = 0; i < 5; i++) {
 
 socket.on("WinnerWinner", (data)=> {
     clearInterval(postCountdownInterval);
-    updateCountdown("WINNER WINNER: " + data);
     socket.off("pullball");
+    updateCountdown("WINNER WINNER: " + data);
 })
 
 function updateCountdown(countdownValue) {
