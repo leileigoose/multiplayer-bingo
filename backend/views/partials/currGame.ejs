@@ -79,7 +79,9 @@ for (let i = 0; i < 5; i++) {
 
 socket.on("WinnerWinner", (data)=> {
     clearInterval(postCountdownInterval);
-    socket.off("ballNumber");
+    io.off("ballNumber");
+    socket.disconnect();
+
     updateCountdown("WINNER WINNER: " + data);
 })
 
