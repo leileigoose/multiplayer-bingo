@@ -1,0 +1,36 @@
+<span> 
+    <button class="game-start" id="gamestart">Send</button>
+    <div class="game"> 
+
+    </div>
+</span>
+
+
+<script>
+
+    function gamestart(e) {
+        e.preventDefault();
+        const gamestartPayload = { 
+        gamecode : '<%=gamecode%>',
+        timestamp : new Date().toISOString().slice(0, 19).replace("T", " ") 
+        }// Format as 'YYYY-MM-DD HH:MI:SS'
+        socket.emit("gamestartDB",gamestartPayload);
+    }
+
+    socket.on("gamestart", (gamecode) => {
+        // for the game add a trigger listener
+        // then mark it on the right player_id and game_code
+    }) 
+
+
+
+
+
+document.getElementById('gamestart').addEventListener('click', gamestart);
+
+
+
+
+
+
+</script>

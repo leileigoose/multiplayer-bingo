@@ -115,6 +115,25 @@ io.on("connection", (socket) => {
         })
     })
 
+    socket.on("gamestartDB", (gamestartPayload) => {
+        const { timestamp, gamecode } = gamestartPayload;
+        db.query(
+            "UPDATE game SET started_at = $1 WHERE game_code = $2",
+            [timestamp, gamecode],
+            (error, result) => {
+                if (error) {
+                    console.error("Error updating game start time:", error);
+                } else {
+                    console.log("Game start time updated successfully");
+                }
+            }
+        );
+        socket.emit("gamestarted", gamecode);
+    });
+
+    
+    
+
     socket.on("messageToDB", (messageData) => {
         const content = messageData.content;
         const sender = messageData.sender;
@@ -127,7 +146,6 @@ io.on("connection", (socket) => {
                 console.error("Error saving message to the db:", error);
             } else {
                 console.log('Message inserted successfully');
-    
                 // Check if the message is not from the local user, then emit to clients
                 if (sender !== '<%= user.username.username %>') {
                     const formattedMessage = {
