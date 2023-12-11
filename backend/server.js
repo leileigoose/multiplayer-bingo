@@ -223,6 +223,8 @@ io.on("connection", (socket) => {
                                             const count = result.rows[0].count;
                                             if (count == 5) {
                                                 console.log("Winning combination found:", combination);
+                                                const winner_id = data.player_id;
+                                                socket.emit("WinnerWinner",winner_id);
                                                 db.query(
                                                     "UPDATE player_card SET is_winner=true WHERE game_id = $1 AND player_id = $2",
                                                     [data.gamecode, data.player_id],
