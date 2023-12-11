@@ -229,7 +229,8 @@ io.on("connection", (socket) => {
                                                         if(error){
                                                             console.error("Failed to update Winner" + error);
                                                         }else{
-                                                            socket.emit("WinnerWinner");
+                                                            const winner_id = data.player_id;
+                                                            socket.emit("WinnerWinner",winner_id);
                                                         }
                                                     }
                                                 )

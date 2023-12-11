@@ -10,6 +10,8 @@
 
 
 <script>
+    let countdownInterval;
+    let postCountdownInterval;
     const countdownElement = document.getElementById('countdown');
     let arr = Array.apply(null, { length: 26 }).map(Number.call, Number);
     const table = document.querySelector("tblBingo")
@@ -27,7 +29,7 @@
 
     updateCountdown(countdownValue);
 
-    const countdownInterval = setInterval(() => {
+     countdownInterval = setInterval(() => {
         countdownValue--;
 
         updateCountdown(countdownValue);
@@ -35,7 +37,7 @@
         if (countdownValue <= 0) {
             clearInterval(countdownInterval);
            updateCountdown('Game Start');
-           const postCountdownInterval = setInterval(() => {
+            postCountdownInterval = setInterval(() => {
                pullBalls();
             }, 5000);
 
@@ -73,6 +75,13 @@ for (let i = 0; i < 5; i++) {
         id: ''
     }
     socket.emit("checkPlayerBoard", playerBoardInfo)
+})
+
+socket.on("WinnerWinner", (data)=> {
+    if(postCountdownInterval){
+        clearInterval(postCountdownInterval);
+    }
+    updateCountdown("WINER WINER: " + data);
 })
 
 function updateCountdown(countdownValue) {
