@@ -69,10 +69,35 @@ const io = new websocket.Server(server, {
 });
 
 
+
 io.on("connection", (socket) => {
     console.log("A user connected");
     const db = configureDatabase();
     db.connect();
+
+    db.query('LISTEN gamechat_channel');
+
+    db.on('notification', async (notification) => {
+        const gameCode = notification.payload;
+        console.log('Received new message notification for game:', gameCode);
+    
+        const queryResult = await db.query(
+            'SELECT * FROM gamechat WHERE game_id = $1 ORDER BY time_sent DESC LIMIT 1',
+            [gameCode]
+        );
+    
+        if (queryResult.rows.length > 0) {
+            const latestMessage = queryResult.rows[0];
+            const formattedMessage = {
+                content: latestMessage.message,
+                sender: latestMessage.user_id,
+                timestamp: latestMessage.time_sent,
+                gamecode: latestMessage.game_id,
+            };
+            io.emit('message', formattedMessage);
+        }
+    });
+    
 
     socket.on("joinGame", (gamecode)=>{
         db.query("SELECT * FROM gamechat WHERE game_id = $1", [gamecode], (error, result) => {
