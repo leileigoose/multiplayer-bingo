@@ -22,7 +22,7 @@
                 timestamp: new Date().toISOString().slice(0, 19).replace("T", " "), // Format as 'YYYY-MM-DD HH:MI:SS'
                 gamecode: '<%=gamecode%>'
             };
-        socket.emit("message", messageData);
+        socket.emit("messageToDB", messageData);
         input.value = "";
     }
     input.focus();

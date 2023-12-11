@@ -110,29 +110,37 @@ io.on("connection", (socket) => {
                     timestamp: row.time_sent,
                     gamecode: row.game_id,
                 }));
-                console.log("emitting from gamechat: " + formattedMessages)
                 socket.emit("previousMessages", formattedMessages);
             }
         })
     })
 
-    socket.on("message", (messageData) => {
+    socket.on("messageToDB", (messageData) => {
         const content = messageData.content;
         const sender = messageData.sender;
         const timestamp = messageData.timestamp;
         const gamecode = messageData.gamecode;
-        console.log(messageData);
-                console.log('Connected to the database');
-                db.query("INSERT INTO gamechat (user_id, game_id, message, time_sent) VALUES ($1, $2, $3 , $4)", [sender, gamecode, content, timestamp], (error, result) => {
-                    if (error) {
-                        console.error("frror saving message to the db:", error);
-                    } else {
-                        console.log('message inserted good');
-                        io.emit("message", messageData);
-                    }
-                });
+    
+        console.log('Connected to the database');
+        db.query("INSERT INTO gamechat (user_id, game_id, message, time_sent) VALUES ($1, $2, $3 , $4)", [sender, gamecode, content, timestamp], (error, result) => {
+            if (error) {
+                console.error("Error saving message to the db:", error);
+            } else {
+                console.log('Message inserted successfully');
+    
+                // Check if the message is not from the local user, then emit to clients
+                if (sender !== '<%= user.username.username %>') {
+                    const formattedMessage = {
+                        content: content,
+                        sender: sender,
+                        timestamp: timestamp,
+                        gamecode: gamecode,
+                    };
+                }
+            }
+        });
     });
-
+    
 
     socket.on("disconnect", () => {
         console.log("User disconnected");
