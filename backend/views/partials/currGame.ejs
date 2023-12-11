@@ -37,7 +37,7 @@
            updateCountdown('Game Start');
            const postCountdownInterval = setInterval(() => {
                pullBalls();
-            }, 1000);
+            }, 5000);
 
         }
     }, 1000);
@@ -46,6 +46,11 @@
 function pullBalls(){
     socket.emit("pullball");
 }
+
+socket.on("ballNumber", (ballInfo) =>{
+    const string = ballInfo.ballNum.toString() + ballInfo.ballLetter.toString();
+    updateCountdown(string);
+})
 
 function updateCountdown(countdownValue) {
     countdownElement.textContent = countdownValue;

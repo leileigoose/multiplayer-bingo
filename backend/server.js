@@ -147,7 +147,23 @@ io.on("connection", (socket) => {
 
     });
 
-    socket.on
+    socket.on("pullball", () => {
+        db.query(
+            "SELECT * FROM bingo_ball WHERE id NOT IN (SELECT bingo_ball_id FROM pulled_balls) ORDER BY RANDOM()LIMIT 1;",
+            [],(error, result) =>{
+                if (error) {
+                    console.log('error from pullball');
+                } else {
+                    console.log("RESULT from pullball: "+  result.rows[0].id + ' '+ result.rows[0].letter);
+                    const ballInfo = {
+                        ballNum: result.rows[0].id,
+                        ballLetter: result.rows[0].letter
+                    }
+                    socket.emit("ballNumber",ballInfo );
+                }
+            }
+        )
+    })
 
     socket.on("cardspotting", (playercardPayload) => {
         db.query(
