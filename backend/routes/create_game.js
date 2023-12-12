@@ -38,7 +38,7 @@ async function create_game(gamecode, gamename) {
     const db = configureDatabase();
     await db.connect();
     console.log("Code, Name:", gamecode, gamename);
-    const created_at = Date.now();
+    const created_at = new Date().toISOString().slice(0, 19).replace("T", " ");
     const query = {
         text: "INSERT INTO game (game_code, game_name, created_at) VALUES ($1, $2, $3)",
         values: [gamecode, gamename, created_at],

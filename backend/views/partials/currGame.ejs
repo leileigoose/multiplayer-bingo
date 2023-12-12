@@ -10,6 +10,8 @@
 
 
 <script>
+    let countdownInterval;
+    let postCountdownInterval;
     const countdownElement = document.getElementById('countdown');
     let arr = Array.apply(null, { length: 26 }).map(Number.call, Number);
     const table = document.querySelector("tblBingo")
@@ -27,7 +29,7 @@
 
     updateCountdown(countdownValue);
 
-    const countdownInterval = setInterval(() => {
+     countdownInterval = setInterval(() => {
         countdownValue--;
 
         updateCountdown(countdownValue);
@@ -35,9 +37,9 @@
         if (countdownValue <= 0) {
             clearInterval(countdownInterval);
            updateCountdown('Game Start');
-           const postCountdownInterval = setInterval(() => {
+            postCountdownInterval = setInterval(() => {
                pullBalls();
-            }, 5000);
+            }, 4000);
 
         }
     }, 1000);
@@ -47,7 +49,23 @@ function pullBalls(){
     socket.emit("pullball", '<%=gamecode%>');
 }
 
-socket.on("ballNumber", (ballInfo) =>{
+socket.on("ballNumber", (ballInfo) =>{// Assume the board has been generated and you want to find and strike out the cell with the number 12
+const targetNumber = ballInfo.ballNum;
+
+for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
+        const cellElement = document.getElementById("cell-" + i + "-" + j);
+        const cellValue = parseInt(cellElement.textContent);
+
+        if (cellValue === targetNumber) {
+            // Found the cell with the target number, apply strike-through style
+            cellElement.style.textDecoration = "line-through";
+            // Additional logic can be added here
+            break; // If you want to stop searching after finding the first occurrence
+        }
+    }
+}
+
     const string =  ballInfo.ballLetter.toString() + "  " + ballInfo.ballNum.toString();
     updateCountdown(string);
     const playerBoardInfo = {
@@ -57,6 +75,12 @@ socket.on("ballNumber", (ballInfo) =>{
         id: ''
     }
     socket.emit("checkPlayerBoard", playerBoardInfo)
+})
+
+socket.on("WinnerWinner", (data)=> {
+    updateCountdown("WINNER WINNER: " + data);
+    
+    clearInterval(postCountdownInterval);
 })
 
 function updateCountdown(countdownValue) {

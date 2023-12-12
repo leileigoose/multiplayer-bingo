@@ -67,35 +67,61 @@ const io = new websocket.Server(server, {
         ["http://localhost:3000"]
     }
 });
+const db = configureDatabase();
+db.connect();
+db.query('LISTEN gamechat_channel');
+db.on('notification', async (notification) => {    
+    const gameCode = notification.payload;
+    console.log('Received new message notification for game:', gameCode);
+
+    const queryResult = await db.query(
+        'SELECT * FROM gamechat WHERE game_id = $1 ORDER BY time_sent DESC LIMIT 1',
+        [gameCode]
+    );
+
+    if (queryResult.rows.length > 0) {
+        const latestMessage = queryResult.rows[0];
+        const formattedMessage = {
+            content: latestMessage.message,
+            sender: latestMessage.user_id,
+            timestamp: latestMessage.time_sent,
+            gamecode: latestMessage.game_id,
+        };
+        setTimeout(() => {
+        }, 500);
+        io.emit('message', formattedMessage);
+    }
+});
+
+db.query('LISTEN lobby_channel');
+
+db.on('notification', async (notification) => {
+  if (notification.channel === 'lobby_channel') {
+    console.log('Received new message notification for lobby:');
+    
+    const queryResult = await db.query(
+      'SELECT * FROM messages ORDER BY message_time DESC LIMIT 1',
+      []
+    );
+
+    if (queryResult.rows.length > 0) {
+      const latestMessage = queryResult.rows[0];
+      const formattedMessage = {
+        content: latestMessage.message_content,
+        sender: latestMessage.player_name,
+        timestamp: latestMessage.message_time,
+      };
+      // Emit the message to the client
+      io.emit('lobbymessage', formattedMessage);
+    }
+  }
+});
 
 
 io.on("connection", (socket) => {
     console.log("A user connected");
-    const db = configureDatabase();
-    db.connect();
-
-    db.query('LISTEN gamechat_channel');
-
-    db.on('notification', async (notification) => {
-        const gameCode = notification.payload;
-        console.log('Received new message notification for game:', gameCode);
+   
     
-        const queryResult = await db.query(
-            'SELECT * FROM gamechat WHERE game_id = $1 ORDER BY time_sent DESC LIMIT 1',
-            [gameCode]
-        );
-    
-        if (queryResult.rows.length > 0) {
-            const latestMessage = queryResult.rows[0];
-            const formattedMessage = {
-                content: latestMessage.message,
-                sender: latestMessage.user_id,
-                timestamp: latestMessage.time_sent,
-                gamecode: latestMessage.game_id,
-            };
-            io.emit('message', formattedMessage);
-        }
-    });
     
 
     socket.on("joinGame", (gamecode)=>{
@@ -109,7 +135,23 @@ io.on("connection", (socket) => {
                     timestamp: row.time_sent,
                     gamecode: row.game_id,
                 }));
-                socket.emit("previousMessages", formattedMessages);
+                io.emit("previousMessages", formattedMessages);
+            }
+        })
+    })
+
+    socket.on("joinLobby", ()=>{
+        db.query("SELECT * FROM messages ", [], (error, result) => {
+            if (error) {
+                console.error("Error getting gamechat messages", error);
+            } else {
+                const formattedMessages = result.rows.map((row) => ({
+                    content: row.message_content,
+                    sender: row.player_name,
+                    timestamp: row.message_time,
+                }));
+                console.log(formattedMessages); // TODO: take this out
+                io.emit("previousLobbyMessages", formattedMessages);
             }
         })
     })
@@ -127,7 +169,7 @@ io.on("connection", (socket) => {
                 }
             }
         );
-        socket.emit("gamestarted", gamecode);
+        io.emit("gamestarted", gamecode);
     });
 
     socket.on("getPlayerCard", (playercardPayload) => {
@@ -169,7 +211,7 @@ io.on("connection", (socket) => {
                             }
                         }
                     )
-                    socket.emit("ballNumber",ballInfo );
+                    io.emit("ballNumber",ballInfo );
                 }
             }
         )
@@ -209,7 +251,7 @@ io.on("connection", (socket) => {
                                 ];
                                 winningCombinations.forEach(combination => {
                                     const query = {
-                                        text: "SELECT COUNT(*) AS count FROM card_spots WHERE spot_id IN ($1, $2, $3, $4, $5)",
+                                        text: "SELECT COUNT(DISTINCT spot_id) AS count FROM card_spot WHERE spot_id IN ($1, $2, $3, $4, $5) AND is_stamp = true",
                                         values: combination
                                     };
                                 
@@ -218,17 +260,20 @@ io.on("connection", (socket) => {
                                             console.error("Error executing query:", error);
                                             // Handle the error as needed
                                         } else {
+                                            console.log("Checking!" + result.rows[0].count);
                                             const count = result.rows[0].count;
-                                            if (count === 5) {
+                                            if (count == 5) {
                                                 console.log("Winning combination found:", combination);
                                                 db.query(
+                                                    // ctr;z
                                                     "UPDATE player_card SET is_winner=true WHERE game_id = $1 AND player_id = $2",
                                                     [data.gamecode, data.player_id],
                                                     (error, result) => {
                                                         if(error){
                                                             console.error("Failed to update Winner" + error);
                                                         }else{
-                                                            socket.emit("WinnerWinner");
+                                                            const winner_id = data.player_id;
+                                                            io.emit("WinnerWinner",winner_id);
                                                         }
                                                     }
                                                 )
@@ -304,6 +349,28 @@ io.on("connection", (socket) => {
         });
     });
     
+    socket.on("messageToLobbyDB", (messageData) => {
+        const content = messageData.content;
+        const sender = messageData.sender;
+        const timestamp = messageData.timestamp;
+    
+        console.log('Connected to the database');
+        db.query("INSERT INTO messages (player_name, message_content, message_time) VALUES ($1, $2, $3)", [sender, content, timestamp], (error, result) => {
+            if (error) {
+                console.error("Error saving message to the db:", error);
+            } else {
+                console.log('Message inserted successfully');
+                // Check if the message is not from the local user, then emit to clients
+                if (sender !== '<%= user.username.username %>') {
+                    const formattedMessage = {
+                        content: content,
+                        sender: sender,
+                        timestamp: timestamp,
+                    };
+                }
+            }
+        });
+    });
     socket.on("active_games", (player_id) => {
         console.log("Fetching games for", player_id);
         const query = {
