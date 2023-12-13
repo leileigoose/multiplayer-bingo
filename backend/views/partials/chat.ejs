@@ -44,7 +44,7 @@
         li.classList.add('chat-msg');
         li.textContent = timestamp + ' ' + sender + ' ' + content ;
         console.log(messageData);
-        document.querySelector('ul').appendChild(li);
+        document.querySelector('ul').prepend(li);
     });
 
     socket.on("previousMessages", (previousMessages) => {
@@ -57,6 +57,6 @@
         const li = document.createElement('li');
         li.classList.add('chat-msg');
         li.textContent = messageData.timestamp + ' ' + messageData.sender + ' ' + messageData.content;
-        document.querySelector('ul').appendChild(li);
+        document.querySelector('ul').prepend(li);
     }
 </script>
