@@ -9,9 +9,23 @@
 </head>
 <body>
     <h1>Here are your active games</h1>
-    <ul></ul>
-    <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
-
+    <ul>
+        <% if (active_games === undefined) { %>
+            <p> Error fetching games </p>
+        <% } else { %>
+            <% if (active_games.length === 0) { %>
+                <p> No games yet! </p>
+            <% } else { %>
+                <% for (let i = 0; i < active_games.length; i++) { %>
+                    <a href="/game/<%= active_games[i].game_code %>">
+                        <%= active_games[i].game_name %>
+                    </a><br>
+                <% } %>
+            <% } %>
+        <% } %>
+               
+    </ul>
+    <!-- <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
     <script>
         const socket = io.connect("http://localhost:3000");
         socket.emit("active_games", user.username.username);
@@ -25,6 +39,6 @@
             document.querySelector('ul').appendChild(li);
         });
     });
-    </script>
+    </script> -->
 </body>
 </html>

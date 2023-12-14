@@ -6,11 +6,21 @@ const configureDatabase = require("../../db/db");
 
 const io = socketio(); 
 const db = configureDatabase();
-
-router.get("/", requireLogin, (_request, response) => {
+router.get("/", requireLogin, async (_request, response) => {
+    await db.connect();
     const user = _request.session.user;
-    const games = getAllGames();
     getAllMessages();
+
+    const query = "SELECT game_code, game_name FROM game;";
+    db.query(query, (error, result) => {
+            if (error) {
+                console.error("Error getting games :(", error);
+                return null;
+            } else {
+                const games = result.rows;
+                response.render("global_lobby.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user, games});
+            }
+    });
 
     // db.query("SELECT * FROM messages", (error, results) => {
     //     if (error) {
@@ -19,43 +29,22 @@ router.get("/", requireLogin, (_request, response) => {
     //         io.emit("start messages", results);
     //     }
     // });  
-
-    if (games) {
-        response.render("global_lobby.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user, games});
-    } else {
-        response.status(404).send("Game not found :(");
-    }
+    // console.log(games);
+    // if (games) {
+    //     response.render("global_lobby.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user, games});
+    // } else {
+    //     response.status(404).send("Games not found :(");
+    // }
 
     if(user == null){
         return response.redirect("/login");
     }
 });
 
-async function getAllGames() {
-    console.log("Fetching all games...");
-    const query = {
-        text: "SELECT game_code FROM game;"
-    };
-    console.log("SQL Query:", query);
-
-    try {
-        const result = await db.query(query);
-        console.log("WE DID IT");
-        return result.rows;
-    } catch (error) {
-        console.error("Error executing query:", error);
-        throw error; // Rethrow the error to propagate it to the calling function
-    }
-    
-    // const result = await db.query(query);
-    // console.log("WE DID IT");
-    // console.log(result);
-
-    // return result.rows;
-}
-
 async function getAllMessages() {
     console.log("Getting messages");
+    const db = configureDatabase();
+    await db.connect();
     db.query("SELECT * FROM messages", (error, results) => {
         if (error) {
             console.error("error db query messages:", error);

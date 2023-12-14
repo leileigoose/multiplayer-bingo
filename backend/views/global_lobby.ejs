@@ -9,18 +9,17 @@
                 <p> No games available </p>
             <% } else { %>
                 <p> WE HAVE GAMES</p> 
-                <% console.log(games) %>
+                <% console.log("peepeep", games) %>
                 <% for (let i = 0; i < games.length; i++) { %>
                     <a href="/game/<%= games[i].game_code %>">
                         <%= games[i].game_name %>
-                    </a>
+                    </a><br>
                 <% } %>
             <% } %>
         <% } %>
                
     </ul>
-    <body>    <%- include ('./partials/lobby_chat.ejs') %>
-    </body>
+
     
     <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
     

@@ -383,32 +383,6 @@ io.on("connection", (socket) => {
             }
         });
     });
-    socket.on("active_games", (player_id) => {
-        console.log("Fetching games for", player_id);
-        const query = {
-            text: `
-            SELECT game.game_code, game.game_name 
-            FROM game 
-                JOIN player_card ON game.game_code = player_card.game_id 
-                JOIN player ON player.username = player_card.player_id 
-                WHERE player.username = $1;
-            `,
-            values: [player_id],
-        };
-
-        db.query(query, (error, result) => {
-            if (error) {
-                console.error("Error getting your games :(", error);
-            } else {
-                const active_games = result.rows.map((row) => ({
-                    game_code: row.game_code,
-                    game_name: row.game_name,
-                }));
-                console.log("emitting from active games: " + active_games)
-                socket.emit("why", active_games);
-            }
-        });
-    });
 
     socket.on("disconnect", () => {
         console.log("User disconnected");
