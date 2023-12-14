@@ -34,7 +34,11 @@
         const content = messageData.content;
         const sender = messageData.sender;
         const timestamp = messageData.timestamp;
+        const ul = document.querySelector('ul');
 
+        if (ul.children.length >= 5) {
+        ul.removeChild(ul.lastElementChild);
+        }
         const li = document.createElement('li');
             //if('<%= user.username.username%>' == _request.session.user){
          //   li.classList.add('')
@@ -46,9 +50,12 @@
     });
 
     socket.on("previousLobbyMessages", (previousMessages) => {
-        previousMessages.forEach((messageData) =>{
-            appendMessageToUI(messageData);
-        })
+        document.querySelector('ul').innerHTML = '';
+
+        const last5Messages = previousMessages.slice(-5);
+        last5Messages.forEach((messageData) => {
+      appendMessageToUI(messageData);
+    });
     })
 
     function appendMessageToUI(messageData){
