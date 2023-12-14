@@ -4,26 +4,55 @@ const socketio = require("socket.io");
 const requireLogin = require("../middleware/reqLogin");
 const configureDatabase = require("../../db/db");
 
-
 const io = socketio(); 
 const db = configureDatabase();
-
-router.get("/", requireLogin, (_request, response) => {
+router.get("/", requireLogin, async (_request, response) => {
+    await db.connect();
     const user = _request.session.user;
+    getAllMessages();
 
-    response.render("global_lobby.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user });
+    const query = "SELECT game_code, game_name FROM game;";
+    db.query(query, (error, result) => {
+            if (error) {
+                console.error("Error getting games :(", error);
+                return null;
+            } else {
+                const games = result.rows;
+                response.render("global_lobby.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user, games});
+            }
+    });
 
+    // db.query("SELECT * FROM messages", (error, results) => {
+    //     if (error) {
+    //         console.error("error db query messages:", error);
+    //     } else {
+    //         io.emit("start messages", results);
+    //     }
+    // });  
+    // console.log(games);
+    // if (games) {
+    //     response.render("global_lobby.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user, games});
+    // } else {
+    //     response.status(404).send("Games not found :(");
+    // }
+
+    if(user == null){
+        return response.redirect("/login");
+    }
+});
+
+async function getAllMessages() {
+    console.log("Getting messages");
+    const db = configureDatabase();
+    await db.connect();
     db.query("SELECT * FROM messages", (error, results) => {
         if (error) {
             console.error("error db query messages:", error);
         } else {
             io.emit("start messages", results);
         }
-    });  
-    if(user == null){
-        return response.redirect("/login");
-    }
-});
+    }); 
+}
 
 io.on("connection", (socket) => {
     console.log("A user connected");

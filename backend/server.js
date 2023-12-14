@@ -67,7 +67,6 @@ const io = new websocket.Server(server, {
         ["http://localhost:3000"]
     }
 });
-
 const db = configureDatabase();
 db.connect();
 db.query('LISTEN gamechat_channel');
@@ -119,12 +118,7 @@ db.on('notification', async (notification) => {
 });
 
 
-io.on("connection", (socket) => {
-    console.log("A user connected");
-   
-    
-    
-
+io.on("connection", (socket) => {   
     socket.on("joinGame", (gamecode)=>{
         db.query("SELECT * FROM gamechat WHERE game_id = $1", [gamecode], (error, result) => {
             if (error) {
@@ -151,7 +145,7 @@ io.on("connection", (socket) => {
                     sender: row.player_name,
                     timestamp: row.message_time,
                 }));
-                console.log(formattedMessages); // TODO: take this out
+                //console.log(formattedMessages); // TODO: take this out
                 io.emit("previousLobbyMessages", formattedMessages);
             }
         })
@@ -173,6 +167,7 @@ io.on("connection", (socket) => {
         io.to(gamecode).emit("gamestarted", gamecode);
     });
 
+    // needs to be invidivual specfic but can be automatic removing the getPlayerCard button
     socket.on("getPlayerCard", (playercardPayload) => {
         const { game_id, player_id, is_winner} = playercardPayload;
         db.query(
@@ -189,10 +184,11 @@ io.on("connection", (socket) => {
 
     });
 
+
     socket.on("pullball", (gamecode) => {
         db.query(
-            "SELECT * FROM bingo_ball WHERE id NOT IN (SELECT bingo_ball_id FROM pulled_balls) ORDER BY RANDOM()LIMIT 1;",
-            [],(error, result) =>{
+            "SELECT * FROM bingo_ball WHERE id NOT IN (SELECT bingo_ball_id FROM pulled_balls where game_id = $1) ORDER BY RANDOM()LIMIT 1;",
+            [gamecode],(error, result) =>{
                 if (error) {
                     console.log('error from pullball');
                 } else {
@@ -212,7 +208,7 @@ io.on("connection", (socket) => {
                             }
                         }
                     )
-                    io.emit("ballNumber",ballInfo );
+                    io.to(gamecode).emit("ballNumber",ballInfo );
                 }
             }
         )
@@ -224,12 +220,17 @@ io.on("connection", (socket) => {
             [data.gamecode, data.player_id],
             (error, result) =>{
                 if(error){
-                    console.error("problem checking player_card to get id"+ erorr);
+                    console.error("problem checking player_card to get id"+ error);
                 }else{
+                    console.log("This is data: ",data);
                     data.id = result.rows[0].id;
                     db.query(
-                        "UPDATE card_spot SET is_stamp = true WHERE bingo_ball_id = $1 AND player_card_id = $2",
-                        [data.pulledBallNum, data.id ],
+                        `UPDATE card_spot
+                        SET is_stamp = true
+                        WHERE bingo_ball_id = $1
+                          AND player_card_id = (SELECT id FROM player_card WHERE player_id = $2 AND game_id = $3);
+                        `,
+                        [data.pulledBallNum, data.player_id, data.gamecode],
                         (error,result)=> {
                             if(error){
                                 console.error("error updating is_stamp" + error);
@@ -252,8 +253,8 @@ io.on("connection", (socket) => {
                                 ];
                                 winningCombinations.forEach(combination => {
                                     const query = {
-                                        text: "SELECT COUNT(DISTINCT spot_id) AS count FROM card_spot WHERE spot_id IN ($1, $2, $3, $4, $5) AND is_stamp = true",
-                                        values: combination
+                                        text: "SELECT COUNT(DISTINCT spot_id) AS count FROM card_spot WHERE spot_id IN ($1, $2, $3, $4, $5) AND is_stamp = true AND player_card_id = $6;",
+                                        values: [combination[0], combination[1], combination[2], combination[3] ,combination[4], data.id]
                                     };
                                 
                                     db.query(query, (error, result) => {
@@ -274,7 +275,7 @@ io.on("connection", (socket) => {
                                                             console.error("Failed to update Winner" + error);
                                                         }else{
                                                             const winner_id = data.player_id;
-                                                            io.emit("WinnerWinner",winner_id);
+                                                            io.to(data.gamecode).emit("WinnerWinner",winner_id);
                                                         }
                                                     }
                                                 )
@@ -304,7 +305,14 @@ io.on("connection", (socket) => {
                     isStamp = true;
                 }
                 db.query(
-                  "INSERT INTO card_spot (player_card_id, bingo_ball_id, is_stamp, spot_id) VALUES ($1, $2, $3, $4)",
+                  `INSERT INTO card_spot (player_card_id, bingo_ball_id, is_stamp, spot_id)
+                  SELECT $1, $2, $3, $4
+                  WHERE NOT EXISTS (
+                      SELECT 1
+                      FROM card_spot
+                      WHERE player_card_id = $1
+                        AND spot_id = $4
+                  );`,
                   [playerCardId, playercardPayload.randomNum, isStamp, playercardPayload.spot_id],
                   (insertError, insertResult) => {
                     if (insertError) {

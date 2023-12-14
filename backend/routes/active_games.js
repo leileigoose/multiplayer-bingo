@@ -1,42 +1,37 @@
 const express = require("express");
-const router = express.Router();
-const configureDatabase = require("../../db/db");
+const app = express;
+const http = require("http");
+const router = app.Router();
+const websocket = require("socket.io");
 const isAuthenticated = require("../middleware/authenticated");
+const configureDatabase = require("../../db/db");
 
 router.use(isAuthenticated);
-const db = configureDatabase();
 
-router.get("/", (request, response) => {
-    console.log(request.session.user); // Check the console to verify the user object
-    const player_id = request.session.user.id;
+router.get("/", async (request, response) => {
+    const user = request.session.user;
+    const player_id = user.username.username;
+    const db = configureDatabase();
+    await db.connect();
 
-    const active_games = getUserGames(player_id);
-
-    if (active_games) {
-        response.render("active_games.ejs", { pageTitle: 'Active Games', active_games, loggedIn: request.session.loggedIn });
-    } else {
-        response.status(404).send("No games found!");
-    }
-});
-
-
-async function getUserGames(player_id) {
-    console.log("Fetching YOUR games...");
     const query = {
         text: `
-        SELECT game.game_code, game.game_name
-        FROM game
-        JOIN player_card ON game.id = player_card.game_id
-        JOIN player ON player.id = player_card.player_id
-        WHERE player.id = $1;
+        SELECT game.game_code, game.game_name 
+        FROM game 
+            JOIN player_card ON game.game_code = player_card.game_id 
+            JOIN player ON player.username = player_card.player_id 
+            WHERE player.username = $1;
         `,
-        values: [player_id],
+        values: [player_id]
     };
-
-    const result = await db.query(query);
-    console.log(result);
-
-    return result.rows;
-}
+    db.query(query, (error, result) => {
+        if (error) {
+            console.error("Error getting your games :(", error);
+        } else {
+            const active_games = result.rows;
+            response.render("active_games.ejs", { pageTitle: 'Active Games', loggedIn: request.session.loggedIn, user, active_games});
+        }
+    });
+});
 
 module.exports = router;

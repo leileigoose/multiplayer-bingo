@@ -1,9 +1,25 @@
 <%- include('template', { pageTitle: 'Global Lobby', pageContent:'' }) %>
 <main>
-    <body>    <%- include ('./partials/lobby_chat.ejs') %>
-    </body>
-    
-    <ul></ul>
+    <h1> Current Games </h1>
+    <ul>
+        <% if (games === undefined) { %>
+            <p> Error fetching games </p>
+        <% } else { %>
+            <% if (games.length === 0) { %>
+                <p> No games available </p>
+            <% } else { %>
+                <p> WE HAVE GAMES</p> 
+                <% console.log("peepeep", games) %>
+                <% for (let i = 0; i < games.length; i++) { %>
+                    <a href="/game/<%= games[i].game_code %>">
+                        <%= games[i].game_name %>
+                    </a><br>
+                <% } %>
+            <% } %>
+        <% } %>
+               
+    </ul>
+
     
     <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
     

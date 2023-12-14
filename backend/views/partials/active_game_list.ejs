@@ -1,14 +1,18 @@
-<ul>
-    <% if(active_games !== undefined && active_games.length > 0) { %>
-    <% active_games.array.forEach(element => {
-        
-    }); (game => { %>
-        <li>
-            <a href="/game/<% game.game_code %>">
-                <%= game.game_name %>
-            </a>
-        </li>
-    <% })} else { %>
-        <p> No games being played</p>
-        <% } %>
-</ul>
+
+<ul></ul>
+<script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
+
+<script>
+    const socket = io.connect("http://localhost:3000");
+    socket.emit("active_games", user.username.username);
+    console.log("WE MADE IT", user.username);
+    socket.on("why", (data) => {
+    data.array.forEach(element => {
+        const li = document.createElement('li');
+        li.textContent = element.game_name;
+        const a = document.createElement('a');
+        a.setAttribute("href=/game/" + element.game_code);
+        document.querySelector('ul').appendChild(li);
+    });
+});
+</script>
