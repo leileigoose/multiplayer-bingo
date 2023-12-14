@@ -136,7 +136,7 @@ io.on("connection", (socket) => {
                     timestamp: row.time_sent,
                     gamecode: row.game_id,
                 }));
-                io.emit("previousMessages", formattedMessages);
+                io.to(gamecode).emit("previousMessages", formattedMessages);
             }
         })
     })
@@ -170,7 +170,7 @@ io.on("connection", (socket) => {
                 }
             }
         );
-        io.emit("gamestarted", gamecode);
+        io.to(gamecode).emit("gamestarted", gamecode);
     });
 
     socket.on("getPlayerCard", (playercardPayload) => {
