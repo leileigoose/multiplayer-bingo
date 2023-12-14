@@ -11,7 +11,7 @@ const db = configureDatabase();
 router.get("/", requireLogin, (_request, response) => {
     const user = _request.session.user;
 
-    response.render("global_lobby.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user });
+    response.render("global_lobby.ejs", { pageTitle: "Home!!!", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user });
 
     db.query("SELECT * FROM messages", (error, results) => {
         if (error) {

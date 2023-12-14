@@ -119,12 +119,7 @@ db.on('notification', async (notification) => {
 });
 
 
-io.on("connection", (socket) => {
-    console.log("A user connected");
-   
-    
-    
-
+io.on("connection", (socket) => {   
     socket.on("joinGame", (gamecode)=>{
         db.query("SELECT * FROM gamechat WHERE game_id = $1", [gamecode], (error, result) => {
             if (error) {
@@ -136,7 +131,7 @@ io.on("connection", (socket) => {
                     timestamp: row.time_sent,
                     gamecode: row.game_id,
                 }));
-                io.emit("previousMessages", formattedMessages);
+                io.to(gamecode).emit("previousMessages", formattedMessages);
             }
         })
     })
@@ -151,7 +146,7 @@ io.on("connection", (socket) => {
                     sender: row.player_name,
                     timestamp: row.message_time,
                 }));
-                console.log(formattedMessages); // TODO: take this out
+                //console.log(formattedMessages); // TODO: take this out
                 io.emit("previousLobbyMessages", formattedMessages);
             }
         })
@@ -170,9 +165,10 @@ io.on("connection", (socket) => {
                 }
             }
         );
-        io.emit("gamestarted", gamecode);
+        io.to(gamecode).emit("gamestarted", gamecode);
     });
 
+    // needs to be invidivual specfic but can be automatic removing the getPlayerCard button
     socket.on("getPlayerCard", (playercardPayload) => {
         const { game_id, player_id, is_winner} = playercardPayload;
         db.query(
@@ -188,6 +184,7 @@ io.on("connection", (socket) => {
         );
 
     });
+
 
     socket.on("pullball", (gamecode) => {
         db.query(
@@ -212,7 +209,7 @@ io.on("connection", (socket) => {
                             }
                         }
                     )
-                    io.emit("ballNumber",ballInfo );
+                    io.to(gamecode).emit("ballNumber",ballInfo );
                 }
             }
         )
@@ -274,7 +271,7 @@ io.on("connection", (socket) => {
                                                             console.error("Failed to update Winner" + error);
                                                         }else{
                                                             const winner_id = data.player_id;
-                                                            io.emit("WinnerWinner",winner_id);
+                                                            io.to(data.gamecode).emit("WinnerWinner",winner_id);
                                                         }
                                                     }
                                                 )
