@@ -1,11 +1,11 @@
 
+
+
+<ul class="lobbychat"></ul>
 <form>
     <input class="message-input" type="text" placeholder="Your Message">
     <button class="header-button" id="sendLobbyMessage">Send</button>
 </form>
-
-<ul></ul>
-
 <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
 
 <script> // we should probably move this to front end global_lobby.js and then include the script fk it
@@ -34,7 +34,7 @@
         const content = messageData.content;
         const sender = messageData.sender;
         const timestamp = messageData.timestamp;
-        const ul = document.querySelector('ul');
+        const ul = document.querySelector('ul.lobbychat');
 
         if (ul.children.length >= 5) {
         ul.removeChild(ul.lastElementChild);
@@ -45,12 +45,12 @@
         //}
         li.classList.add('chat-msg');
         li.textContent = timestamp + ' ' + sender + ' ' + content ;
-        console.log(messageData);
-        document.querySelector('ul').prepend(li);
+        //console.log(messageData);
+        document.querySelector('ul.lobbychat').prepend(li);
     });
 
     socket.on("previousLobbyMessages", (previousMessages) => {
-        document.querySelector('ul').innerHTML = '';
+        document.querySelector('ul.lobbychat').innerHTML = '';
 
         const last5Messages = previousMessages.slice(-5);
         last5Messages.forEach((messageData) => {
@@ -62,6 +62,6 @@
         const li = document.createElement('li');
         li.classList.add('chat-msg');
         li.textContent = messageData.timestamp + ' ' + messageData.sender + ' ' + messageData.content;
-        document.querySelector('ul').prepend(li);
+        document.querySelector('ul.lobbychat').prepend(li);
     }
 </script>
