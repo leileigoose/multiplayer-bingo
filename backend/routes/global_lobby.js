@@ -7,7 +7,6 @@ const configureDatabase = require("../../db/db");
 const io = socketio(); 
 const db = configureDatabase();
 router.get("/", requireLogin, async (_request, response) => {
-    await db.connect();
     const user = _request.session.user;
     getAllMessages();
 

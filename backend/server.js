@@ -214,6 +214,19 @@ io.on("connection", (socket) => {
         )
     })
 
+    socket.on("active_games", (username) => {
+        db.query('SELECT game.game_code, game.game_name FROM game JOIN player_card ON game.game_code = player_card.game_id  JOIN player ON player.username = player_card.player_id WHERE player.username = $1;',
+            [username], (error, result) => {
+                if (error) {
+                    console.error("Error getting your games :(", error);
+                } else {
+                    const active_games = result.rows;
+                    socket.emit("active_games_return", active_games);
+                }
+            });
+    });
+    
+
     socket.on("checkPlayerBoard", (data)=> {
         db.query(
             "SELECT pc.id FROM player_card pc JOIN game g ON pc.game_id = g.game_code WHERE g.game_code = $1 AND pc.player_id = $2;",
