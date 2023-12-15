@@ -24,3 +24,17 @@ Our Bingo game is set up to allow you to make an account, log in, and view your 
 
 # Structure
 Our code has a standard backend and frontend, and the actual game logic is mostly stored in the .ejs files in views. All our Javascript files are found in the routes folder. All css is stored in a single static .css folder in frontend.
+Our database is hosted on Render, so you'll need a .env file with our Render information (which we will provide to you). 
+You could also build the database from scratch via our SQL code in our db folder.
+
+## Appplications Needed to run the website - Node.js
+1. Make sure you have Node.js
+    For Windows Users:
+        1) Go to: https://nodejs.org/en/
+        2) Download the LTS version (You can download the current experiemental version if you'd like, but it's not neccessary!)
+
+## Run Instructions
+1. Open your favorite code editor
+2. With your editor, open the entire folder named '<insert our repo name here>'
+3. In the code editor terminal, run 'npm install'
+4. Open your favorite browser, and type in "http://localhost:3000/"
