@@ -5,7 +5,7 @@
     <button class="game-button" id="gamestart">3.Start Game</button>
     <br>
     <span style="border: 5ch;"></span>
-    <h1 id="countdown">YOOOOO</h1>
+    <h1 id="countdown">Press Game Start!</h1>
     <table id="tblBingo"></table>
 </span>
 
@@ -63,7 +63,8 @@ for (let i = 0; i < 5; i++) {
 
         if (cellValue === targetNumber) {
             // Found the cell with the target number, apply strike-through style
-            cellElement.style.textDecoration = "line-through";
+            cellElement.classList.remove("main-table-cell");
+            cellElement.classList.add("scratched-table-cell");
             // Additional logic can be added here
             break; // If you want to stop searching after finding the first occurrence
         }
@@ -121,7 +122,11 @@ function updateCountdown(countdownValue) {
             spot_id: ''
         }
 
-        for (let i = 0; i < 5; i++) {
+    const columnHeaders = ["B", "I", "N", "G", "O"];
+    
+
+
+    for (let i = 0; i < 6; i++) {
         let tr = document.createElement("tr");
         table.appendChild(tr);
 
@@ -137,6 +142,13 @@ function updateCountdown(countdownValue) {
             usedNumbers.push(randomNumber); // Add the number to the usedNumbers array
 
             div.textContent = randomNumber.toString();
+            if(i == 0){
+                div.textContent = columnHeaders[j];
+            }
+
+            if(i == 3 && j == 2){
+                div.textContent = 'FREE';
+            }
             
             // Assuming playercardPayload is defined outside this function
             playercardPayload.randomNum = randomNumber.toString();
@@ -151,6 +163,7 @@ function updateCountdown(countdownValue) {
             resultTextElement.textContent = 'Done!';
         }
     }
+
 }
 
 // Function to generate unique random numbers within a range

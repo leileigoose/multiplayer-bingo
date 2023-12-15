@@ -103,14 +103,23 @@ a:link {
 }
 
 .main-table-cell {
-    border: 1px solid black;
-    text-align: center;
-    padding: 10px; /* Adjust padding for the cells */
-    display: inline-block; /* Display cells as inline-block */
+  width: 40px; 
+  height: 40px; 
+  border: 1px solid black; 
+  text-align: center;
+}
+.scratched-table-cell {
+  width: 40px; 
+  height: 40px; 
+  border: 1px solid white; 
+  text-align: center; 
+  color:white;
+  background-color: white;
 }
 
+
 .cell-format {
-    font-size: 16px; /* Adjust font size for the cells */
+    font-size: 16px; 
 }
 
 .game-button {
