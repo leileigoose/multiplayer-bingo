@@ -3,7 +3,6 @@ const router = express.Router();
 const crypto = require("crypto");
 const configureDatabase = require("../../db/db");
 
-const db = configureDatabase
 router.get("/", (_request, response) => {
     const user = _request.session.user;
     response.render("create_game.ejs", { pageTitle: "Home", pageContent: "Welcome", loggedIn: _request.session.loggedIn, user});
@@ -11,21 +10,17 @@ router.get("/", (_request, response) => {
 
 router.post("/", async (request,response) =>  {
     const {gamename} = request.body;
-    console.log(request.body);
-    
     const gamecode = generateRandomCode(8);
 
     try {
         await create_game(gamecode, gamename);
-        
+        // Once the game is create, redirect to the game page
         response.redirect(`/game/${gamecode}`);
     } catch (error) {
         console.error("Error creating game :(", error);
         response.status(500).send("Internal server error.");
     }
 });
-
-module.exports = router;
 
 function generateRandomCode(len) {
     const bytes = crypto.randomBytes(Math.ceil(len/2));
@@ -34,7 +29,6 @@ function generateRandomCode(len) {
 }
 
 async function create_game(gamecode, gamename) {
-
     const db = configureDatabase();
     await db.connect();
     console.log("Code, Name:", gamecode, gamename);
@@ -44,6 +38,8 @@ async function create_game(gamecode, gamename) {
         values: [gamecode, gamename, created_at],
     };
 
-    const result = await db.query(query);
+    await db.query(query);
     console.log("Game created successfully!");
 }
+
+module.exports = router;

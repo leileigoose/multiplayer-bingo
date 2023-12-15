@@ -1,5 +1,4 @@
 <%- include('template', { pageTitle: 'Login', pageContent: '' }) %>
-
 <main>
     <h1>Please login!</h1>
     <form class="user-forms" action="/login" method="post">
@@ -18,4 +17,3 @@
 <% if (loginFailed) { %>
     <p style="color: red;">Login failed! Please check your credentials.</p>
 <% } %>
-

@@ -1,4 +1,3 @@
-// login.js
 const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
@@ -8,7 +7,6 @@ const configureDatabase = require("../../db/db");
 router.get("/", (_request, response) => {
     const user = _request.session.user;
     const loggedIn = _request.session.loggedIn;
-    console.log(loggedIn);
     response.render("login.ejs", { loginFailed: false, loggedIn: loggedIn });
 });
 
@@ -21,13 +19,9 @@ router.post("/", async (request, response) => {
     try {
         // searching for user in db
         const user = await getUserByUsernameAndPassword(db, username, password);
-        console.log("made it here!");
         if (user) {
-            console.log("made it here2");
-
             request.session.loggedIn = true;
             request.session.user = user;
-            //console.log("finally" + user);
             response.redirect("/"); // redirect
         } else {
             // auth failed
@@ -47,13 +41,10 @@ async function getUserByUsernameAndPassword(db, username,password) {
         values: [username],
     };
 
-    console.log("SQL Query:", query);
-
     const result = await db.query(query);
-
     if (result.rows.length > 0) {
-        const hashedPassword = result.rows[0].password;
         // User found
+        const hashedPassword = result.rows[0].password;
         const isPassCorrect = await bcrypt.compare(password, hashedPassword);
         if(isPassCorrect){
         return new User(result.rows[0]); 

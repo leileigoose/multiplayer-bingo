@@ -15,7 +15,7 @@
     let postCountdownInterval;
     const countdownElement = document.getElementById('countdown');
     let arr = Array.apply(null, { length: 26 }).map(Number.call, Number);
-    const table = document.querySelector("tblBingo")
+    const table = document.querySelector("tblBingo");
     function gamestart(e) {
         e.preventDefault();
         const gamestartPayload = { 
@@ -24,7 +24,8 @@
         }// Format as 'YYYY-MM-DD HH:MI:SS'
         socket.emit("gamestartDB",gamestartPayload);
 
-
+        const resultTextElement = document.getElementById('gamestart');
+        resultTextElement.textContent = 'Game Started!';
     }
 
     socket.on("gamestarted", (gamecode) => {

@@ -1,8 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-
-router.get("/logout", (_request, response) => {
+router.get("/", (_request, response) => {
     _request.session.destroy((error)=>{
         if(error){
             console.error("Error caught", error);
@@ -11,6 +10,5 @@ router.get("/logout", (_request, response) => {
         }
     })
 });
-
 
 module.exports = router;
