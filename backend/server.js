@@ -120,6 +120,7 @@ db.on('notification', async (notification) => {
 
 io.on("connection", (socket) => {   
     socket.on("joinGame", (gamecode)=>{
+        socket.join(gamecode);
         db.query("SELECT * FROM gamechat WHERE game_id = $1", [gamecode], (error, result) => {
             if (error) {
                 console.error("Error getting gamechat messages", error);
@@ -130,6 +131,7 @@ io.on("connection", (socket) => {
                     timestamp: row.time_sent,
                     gamecode: row.game_id,
                 }));
+
                 io.to(gamecode).emit("previousMessages", formattedMessages);
             }
         })
