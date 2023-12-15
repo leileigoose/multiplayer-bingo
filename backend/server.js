@@ -233,7 +233,7 @@ io.on("connection", (socket) => {
                     console.error("Error getting all games :(", error);
                 } else {
                     const all_games = result.rows;
-                    socket.emit("global_games_return", all_games);
+                    io.emit("global_games_return", all_games);
                 }
             });
     });

@@ -1,23 +1,28 @@
 <%- include('template', { pageTitle: 'Global Lobby', pageContent:'' }) %>
 
-<main>
-    <h1> Current Games </h1>
-    <ul>       
-    </ul>
-    
+    <div id="gamesContainer">
+        <h1> Current Games </h1>
+        <ul class="gamesList">
+        </ul>
+      </div>
+      
+      <div id="chatContainer">
+        <%- include('./partials/lobby_chat.ejs') %>
+      </div>
     <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
     
     <script> // we should probably move this to front end global_lobby.js and then include the script fk it
+
         socket.emit("global_games_call", );
-        let ul = document.querySelector("ul");
+        let gamesListul = document.querySelector("ul.gamesList");
         socket.on("global_games_return", (data) => {
-            ul.innerHTML = "";
+            gamesListul.innerHTML = "";
             if (data === undefined) {
                 console.error("Error: Data is undefined.");
             } else if (data.length === 0) {
                 let li = document.createElement("li");
                 li.textContent = "There are no games!";
-                ul.appendChild(li);
+                gamesListul.appendChild(li);
             } else {
                 data.forEach(game => {
                     let li = document.createElement("li");
@@ -25,7 +30,7 @@
                     a.href = "/game/" + game.game_code; 
                     a.textContent = game.game_name; 
                     li.appendChild(a);
-                    ul.appendChild(li);
+                    gamesListul.appendChild(li);
                 });
             }
         });
@@ -43,6 +48,5 @@
         });
     </script>
 
-<%- include('./partials/lobby_chat.ejs')%>
+
     
-</main>
