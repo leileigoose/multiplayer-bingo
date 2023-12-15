@@ -10,7 +10,6 @@ router.get("/:gamecode", (request, response) => {
     const user = request.session.user;
     console.log(request.params);
     const gamecode = request.params.gamecode;
-
     const gameData = getGameData(gamecode);
 
     if (gameData) {
@@ -27,8 +26,7 @@ async function getGameData(gamecode) {
     };
 
     const result = await db.query(query);
-    console.log(result);
-
     return result.rows[0];
 }
+
 module.exports = router;

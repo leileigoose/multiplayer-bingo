@@ -12,16 +12,12 @@ router.get("/", (_request, response) => {
 
 router.post("/",async (request,response) =>  {
     const { username, email, password, confirm_password} = request.body;
-    
-
     const db = configureDatabase();
     await db.connect();
     
     try {
         const user = { username, email, password };
-
         await createUser(db, user);
-
         response.redirect("/login");
     } catch (error) {
         console.error("Error creating user:", error);
@@ -30,8 +26,6 @@ router.post("/",async (request,response) =>  {
         db.end(); 
     }
 });
-module.exports = router;
-
 
 async function createUser(db, user) {
     const hashedPassword = await bcrypt.hash(user.password, 10);
@@ -42,6 +36,8 @@ async function createUser(db, user) {
         values: [user.username, user.email, hashedPassword],
     };
 
-    const result = await db.query(query);
+    await db.query(query);
     console.log("User created successfully");
 }
+
+module.exports = router;
