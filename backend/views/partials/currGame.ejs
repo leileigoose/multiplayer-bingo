@@ -5,7 +5,7 @@
     <button class="game-button" id="gamestart">3.Start Game</button>
     <br>
     <span style="border: 5ch;"></span>
-    <h1 id="countdown">YOOOOO</h1>
+    <h1 id="countdown">Press Game Start!</h1>
     <table id="tblBingo"></table>
 </span>
 
@@ -62,7 +62,8 @@ for (let i = 0; i < 5; i++) {
 
         if (cellValue === targetNumber) {
             // Found the cell with the target number, apply strike-through style
-            cellElement.style.textDecoration = "line-through";
+            cellElement.classList.remove("main-table-cell");
+            cellElement.classList.add("scratched-table-cell");
             // Additional logic can be added here
             break; // If you want to stop searching after finding the first occurrence
         }
@@ -121,15 +122,10 @@ function updateCountdown(countdownValue) {
         }
 
     const columnHeaders = ["B", "I", "N", "G", "O"];
-    for (let col = 0; col < 5; col++) {
-        let td = document.createElement("td");
-        td.textContent = columnHeaders[col];
-        td.classList.add("main-table-cell");
-        table.appendChild(td);
-    }
+    
 
 
-for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
         let tr = document.createElement("tr");
         table.appendChild(tr);
 
@@ -144,10 +140,12 @@ for (let i = 0; i < 5; i++) {
             const randomNumber = generateUniqueRandomNumber(usedNumbers, j * 15 + 1, (j + 1) * 15);
             usedNumbers.push(randomNumber); // Add the number to the usedNumbers array
 
-            
             div.textContent = randomNumber.toString();
-            
-            if(i == 2 && j == 2){
+            if(i == 0){
+                div.textContent = columnHeaders[j];
+            }
+
+            if(i == 3 && j == 2){
                 div.textContent = 'FREE';
             }
             
