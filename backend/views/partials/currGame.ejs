@@ -42,7 +42,7 @@
            updateCountdown('Game Start');
             postCountdownInterval = setInterval(() => {
                pullBalls();
-            }, 4000);
+            }, 2500);
 
         }
     }, 1000);
@@ -55,17 +55,15 @@ function pullBalls(){
 socket.on("ballNumber", (ballInfo) =>{// Assume the board has been generated and you want to find and strike out the cell with the number 12
 const targetNumber = ballInfo.ballNum;
 
-for (let i = 1; i < 6; i++) {
+for (let i = 0; i < 5; i++) {
     for (let j = 0; j < 5; j++) {
         const cellElement = document.getElementById("cell-" + i + "-" + j);
         const cellValue = parseInt(cellElement.textContent);
 
         if (cellValue === targetNumber) {
-            // Found the cell with the target number, apply strike-through style
             cellElement.classList.remove("main-table-cell");
             cellElement.classList.add("scratched-table-cell");
-            // Additional logic can be added here
-            break; // If you want to stop searching after finding the first occurrence
+            break; 
         }
     }
 }
@@ -123,11 +121,20 @@ function updateCountdown(countdownValue) {
             spot_id: ''
         }
 
-    const columnHeaders = ["B", "I", "N", "G", "O"];
-    
+        const columnHeaders = ["B", "I", "N", "G", "O"];
+
+        let headerRow = document.createElement("tr");
+
+        for (let i = 0; i < 5; i++) {
+            let headerCell = document.createElement("th");
+            headerCell.textContent = columnHeaders[i];
+            headerRow.appendChild(headerCell);
+        }
+
+        table.appendChild(headerRow);
 
 
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 5; i++) {
         let tr = document.createElement("tr");
         table.appendChild(tr);
 
@@ -143,18 +150,17 @@ function updateCountdown(countdownValue) {
             usedNumbers.push(randomNumber); // Add the number to the usedNumbers array
 
             div.textContent = randomNumber.toString();
-            if(i == 0){
-                div.textContent = columnHeaders[j];
-            }
 
-            if(i == 3 && j == 2){
+            if(i == 2 && j == 2){
                 div.textContent = 'FREE';
             }
             
             // Assuming playercardPayload is defined outside this function
             playercardPayload.randomNum = randomNumber.toString();
             playercardPayload.spot_id = (i + 1) + (j * 5);
-
+            console.log(
+                "SPOT ID: " + playercardPayload.spot_id + " td.id : " + td.id.toString() + "VALUE IN THIS CELL: " + playercardPayload.randomNum + "THIS IS I : " + i + " THIS IS J: " + j
+            )
             td.appendChild(div);
             tr.appendChild(td);
 
@@ -169,6 +175,7 @@ function updateCountdown(countdownValue) {
 
 // Function to generate unique random numbers within a range
 function generateUniqueRandomNumber(usedNumbers, min, max) {
+    console.log("MIN: " + min + "MAX: " + max);
     let randomNumber;
     do {
         randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
