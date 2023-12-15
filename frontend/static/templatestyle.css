@@ -7,6 +7,7 @@ body{
     border-color: #456a53;
     padding: 10px;
     font-family: 'ADLaM Display';
+    text-decoration: none;
 }
 
 nav{
@@ -151,3 +152,12 @@ a:link {
   cursor: pointer;
   border-radius: 30px;
 }
+
+a:visited {
+  color: black;
+}
+
+a:link {
+  text-decoration: none;
+}
+

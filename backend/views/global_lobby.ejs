@@ -26,6 +26,7 @@
             } else {
                 data.forEach(game => {
                     let li = document.createElement("li");
+                    li.classList.add('active-games-button');
                     let a = document.createElement("a");
                     a.href = "/game/" + game.game_code; 
                     a.textContent = game.game_name; 
