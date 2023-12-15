@@ -21,7 +21,6 @@ router.get("/:gamecode", (request, response) => {
 });
 
 async function getGameData(gamecode) {
-    console.log("Fetching game...");
     const query = {
         text: "SELECT * FROM game where gamecode = $1",
         values: [gamecode],

@@ -1,7 +1,8 @@
+<p id="notice"></p>
 <span> 
-    <button class="game-button" id="gamestart">Game Start</button>
-    <button class="game-button" id="playercard"> Create Player Card</button>
-    <button class="game-button" id="create-board"> Create Board</button>
+    <button class="game-button" id="playercard">1. Create Player Card</button>
+    <button class="game-button" id="create-board">2.Create Board</button>
+    <button class="game-button" id="gamestart">3.Start Game</button>
     <br>
     <span style="border: 5ch;"></span>
     <h1 id="countdown">YOOOOO</h1>
@@ -22,6 +23,8 @@
         timestamp : new Date().toISOString().slice(0, 19).replace("T", " ") 
         }// Format as 'YYYY-MM-DD HH:MI:SS'
         socket.emit("gamestartDB",gamestartPayload);
+
+
     }
 
     socket.on("gamestarted", (gamecode) => {
@@ -98,6 +101,9 @@ function updateCountdown(countdownValue) {
             is_winner: 'f'
         }
         socket.emit("getPlayerCard", playercardPayload);
+    
+        const resultTextElement = document.getElementById('playercard');
+        resultTextElement.textContent = 'Done!';
     }
 
     socket.on("game_card_exists", (data) => {
@@ -139,6 +145,9 @@ function updateCountdown(countdownValue) {
             tr.appendChild(td);
 
             socket.emit("cardspotting", playercardPayload);
+
+            const resultTextElement = document.getElementById('create-board');
+            resultTextElement.textContent = 'Done!';
         }
     }
 }
