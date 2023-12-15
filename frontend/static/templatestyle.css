@@ -113,3 +113,32 @@ a:link {
     font-size: 16px; /* Adjust font size for the cells */
 }
 
+.game-button {
+  background-color: #5c8f6f;
+  border: 2px solid black;
+  color: rgb(0, 0, 0);
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  font-family: 'ADLaM Display';
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.active-games-button {
+  background-color: #5c8f6f;
+  border: 2px solid black;
+  color: rgb(0, 0, 0);
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  font-family: 'ADLaM Display';
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 30px;
+}

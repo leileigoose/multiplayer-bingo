@@ -1,34 +1,35 @@
 <%- include('template', { pageTitle: 'Global Lobby', pageContent:'' }) %>
+
 <main>
     <h1> Current Games </h1>
-    <ul>
-        <% if (games === undefined) { %>
-            <p> Error fetching games </p>
-        <% } else { %>
-            <% if (games.length === 0) { %>
-                <p> No games available </p>
-            <% } else { %>
-                <p> WE HAVE GAMES</p> 
-                <% console.log("peepeep", games) %>
-                <% for (let i = 0; i < games.length; i++) { %>
-                    <a href="/game/<%= games[i].game_code %>">
-                        <%= games[i].game_name %>
-                    </a><br>
-                <% } %>
-            <% } %>
-        <% } %>
-               
+    <ul>       
     </ul>
-
     
     <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
     
     <script> // we should probably move this to front end global_lobby.js and then include the script fk it
-       
-    
-    
-    
-    
+        socket.emit("global_games_call", );
+        let ul = document.querySelector("ul");
+        socket.on("global_games_return", (data) => {
+            ul.innerHTML = "";
+            if (data === undefined) {
+                console.error("Error: Data is undefined.");
+            } else if (data.length === 0) {
+                let li = document.createElement("li");
+                li.textContent = "There are no games!";
+                ul.appendChild(li);
+            } else {
+                data.forEach(game => {
+                    let li = document.createElement("li");
+                    let a = document.createElement("a");
+                    a.href = "/game/" + game.game_code; 
+                    a.textContent = game.game_name; 
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+            }
+        });
+
         // listening for mesages from the serverrrr
         socket.on("message", (messageData) => {
             const content = messageData.content;
@@ -41,5 +42,7 @@
             document.querySelector('ul').prepend(li);
         });
     </script>
+
+<%- include('./partials/lobby_chat.ejs')%>
     
 </main>
