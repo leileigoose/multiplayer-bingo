@@ -2,19 +2,17 @@
 # CSC 667 Fall 2023, Group A: Adithya Gutala, Louis Houston, Aleia Natividad, Nina Young
 
 ### CURRENT NODE PACKAGES INSTALLED 
+├── bcrypt@5.1.1
 ├── body-parser@1.20.2
-
+├── cookie-parser@1.4.6
 ├── dotenv@16.3.1
-
 ├── ejs@3.1.9
-
+├── express-session@1.17.3
 ├── express@4.18.2
-
 ├── http-errors@2.0.0
-
 ├── nodemon@3.0.1
-
-└── pg@8.11.3
+├── pg@8.11.3
+└── socket.io@4.7.2
 
 To start using, first make sure you have access to the team-bingo DB with psql. You will also need to make a .env file with the correct link.
 Use ```npm install``` to install all necessary dependencies. You may need to uninstall and reinstall bcrypt before running as different machines seem to cause issues with this program.
