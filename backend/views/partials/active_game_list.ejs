@@ -10,6 +10,7 @@
     data.array.forEach(element => {
         const li = document.createElement('li');
         li.textContent = element.game_name;
+        li.classList.add('game-button');
         const a = document.createElement('a');
         a.setAttribute("href=/game/" + element.game_code);
         document.querySelector('ul').appendChild(li);

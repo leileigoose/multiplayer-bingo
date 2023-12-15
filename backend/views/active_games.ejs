@@ -17,7 +17,7 @@
                 <p> No games yet! </p>
             <% } else { %>
                 <% for (let i = 0; i < active_games.length; i++) { %>
-                    <a href="/game/<%= active_games[i].game_code %>">
+                    <a class="active-games-button" href="/game/<%= active_games[i].game_code %>">
                         <%= active_games[i].game_name %>
                     </a><br>
                 <% } %>
