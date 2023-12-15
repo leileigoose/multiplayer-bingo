@@ -120,7 +120,16 @@ function updateCountdown(countdownValue) {
             spot_id: ''
         }
 
-        for (let i = 0; i < 5; i++) {
+    const columnHeaders = ["B", "I", "N", "G", "O"];
+    for (let col = 0; col < 5; col++) {
+        let td = document.createElement("td");
+        td.textContent = columnHeaders[col];
+        td.classList.add("main-table-cell");
+        table.appendChild(td);
+    }
+
+
+for (let i = 0; i < 5; i++) {
         let tr = document.createElement("tr");
         table.appendChild(tr);
 
@@ -135,7 +144,12 @@ function updateCountdown(countdownValue) {
             const randomNumber = generateUniqueRandomNumber(usedNumbers, j * 15 + 1, (j + 1) * 15);
             usedNumbers.push(randomNumber); // Add the number to the usedNumbers array
 
+            
             div.textContent = randomNumber.toString();
+            
+            if(i == 2 && j == 2){
+                div.textContent = 'FREE';
+            }
             
             // Assuming playercardPayload is defined outside this function
             playercardPayload.randomNum = randomNumber.toString();
@@ -150,6 +164,7 @@ function updateCountdown(countdownValue) {
             resultTextElement.textContent = 'Done!';
         }
     }
+
 }
 
 // Function to generate unique random numbers within a range
