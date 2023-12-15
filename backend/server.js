@@ -147,7 +147,6 @@ io.on("connection", (socket) => {
                     sender: row.player_name,
                     timestamp: row.message_time,
                 }));
-                //console.log(formattedMessages); // TODO: take this out
                 io.emit("previousLobbyMessages", formattedMessages);
             }
         })

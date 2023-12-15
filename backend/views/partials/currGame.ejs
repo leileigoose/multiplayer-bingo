@@ -55,7 +55,7 @@ function pullBalls(){
 socket.on("ballNumber", (ballInfo) =>{// Assume the board has been generated and you want to find and strike out the cell with the number 12
 const targetNumber = ballInfo.ballNum;
 
-for (let i = 0; i < 5; i++) {
+for (let i = 1; i < 6; i++) {
     for (let j = 0; j < 5; j++) {
         const cellElement = document.getElementById("cell-" + i + "-" + j);
         const cellValue = parseInt(cellElement.textContent);
@@ -83,8 +83,10 @@ for (let i = 0; i < 5; i++) {
 
 socket.on("WinnerWinner", (data)=> {
     updateCountdown("WINNER WINNER: " + data);
-    
     clearInterval(postCountdownInterval);
+    clearInterval(countdownInterval);
+
+   // try next socket.disconnect();
 })
 
 function updateCountdown(countdownValue) {
