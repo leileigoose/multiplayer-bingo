@@ -15,46 +15,29 @@
         <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
 
     <script>
-const socket = io.connect("http://localhost:3000");
-    socket.emit("active_games",'<%= user.username.username %>');
-        let ul = document.querySelector("ul");
-
-    socket.on("active_games_return", (data) => {
-    ul.innerHTML = "";
-
-    if (data === undefined) {
-        console.error("Error: Data is undefined.");
-    } else if (data.length === 0) {
-        let li = document.createElement("li");
-        li.textContent = "You have no games!";
-        ul.appendChild(li);
-    } else {
-        data.forEach(game => {
-            let li = document.createElement("li");
-            let a = document.createElement("a");
-            a.href = "/game/" + game.game_code; 
-            a.textContent = game.game_name; 
-            li.appendChild(a);
-            ul.appendChild(li);
-        });
-    }
-});
-
-    </script>
-    <!-- <script src="https://cdn.socket.io/4.1.2/socket.io.min.js"></script>
-    <script>
         const socket = io.connect("http://localhost:3000");
-        socket.emit("active_games", user.username.username);
-        console.log("WE MADE IT", user.username);
-        socket.on("why", (data) => {
-        data.array.forEach(element => {
-            const li = document.createElement('li');
-            li.textContent = element.game_name;
-            const a = document.createElement('a');
-            a.setAttribute("href=/game/" + element.game_code);
-            document.querySelector('ul').appendChild(li);
+        socket.emit("active_games",'<%= user.username.username %>');
+            let ul = document.querySelector("ul");
+
+        socket.on("active_games_return", (data) => {
+            ul.innerHTML = "";
+            if (data === undefined) {
+                console.error("Error: Data is undefined.");
+            } else if (data.length === 0) {
+                let li = document.createElement("li");
+                li.textContent = "You have no games!";
+                ul.appendChild(li);
+            } else {
+                data.forEach(game => {
+                    let li = document.createElement("li");
+                    let a = document.createElement("a");
+                    a.href = "/game/" + game.game_code; 
+                    a.textContent = game.game_name; 
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+            }
         });
-    });
-    </script> -->
+    </script>
 </body>
 </html>
