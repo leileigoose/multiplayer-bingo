@@ -18,10 +18,6 @@ router.get("/", requireLogin, (_request, response) => {
     }
 });
 
-
-
-
-
 router.io = io;
 
 module.exports = router;
