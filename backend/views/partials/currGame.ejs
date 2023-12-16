@@ -28,73 +28,20 @@
         resultTextElement.textContent = 'Game Started!';
     }
 
-    socket.on("gamestarted", (gamecode) => {
-    let countdownValue = 3;
+    // Events for button clicking
+    document.getElementById('gamestart').addEventListener('click', gamestart);
+    document.getElementById('playercard').addEventListener('click', getPlayerCard);
+    document.getElementById('create-board').addEventListener('click', function() {
+        const table = document.querySelector("#tblBingo");
+        generateBoard(table);
+    });
 
-    updateCountdown(countdownValue);
-
-     countdownInterval = setInterval(() => {
-        countdownValue--;
-
-        updateCountdown(countdownValue);
-
-        if (countdownValue <= 0) {
-            clearInterval(countdownInterval);
-           updateCountdown('Game Start');
-            postCountdownInterval = setInterval(() => {
-               pullBalls();
-            }, 2500);
-
-        }
-    }, 1000);
-});
-
-function pullBalls(){
-    socket.emit("pullball", '<%=gamecode%>');
-}
-
-socket.on("ballNumber", (ballInfo) =>{// Assume the board has been generated and you want to find and strike out the cell with the number 12
-const targetNumber = ballInfo.ballNum;
-
-for (let i = 0; i < 5; i++) {
-    for (let j = 0; j < 5; j++) {
-        const cellElement = document.getElementById("cell-" + i + "-" + j);
-        const cellValue = parseInt(cellElement.textContent);
-
-        if (cellValue === targetNumber) {
-            cellElement.classList.remove("main-table-cell");
-            cellElement.classList.add("scratched-table-cell");
-            break; 
-        }
+    // Updates the text with id 'countdown'
+    function updateCountdown(countdownValue) {
+        countdownElement.textContent = countdownValue;
     }
-}
 
-    const string =  ballInfo.ballLetter.toString() + "  " + ballInfo.ballNum.toString();
-    updateCountdown(string);
-    const playerBoardInfo = {
-        gamecode: '<%=gamecode%>',
-        player_id: '<%= user.username.username%>',
-        pulledBallNum: ballInfo.ballNum,
-        id: ''
-    }
-    socket.emit("checkPlayerBoard", playerBoardInfo)
-})
-
-socket.on("WinnerWinner", (data)=> {
-    updateCountdown("WINNER WINNER: " + data);
-    clearInterval(postCountdownInterval);
-    clearInterval(countdownInterval);
-
-   // try next socket.disconnect();
-})
-
-function updateCountdown(countdownValue) {
-    countdownElement.textContent = countdownValue;
-}
-    socket.on("player_card_id", (id)=>{
-
-    })
-
+    // Cerates the player's bingo card
     function getPlayerCard(e){
         e.preventDefault();
         const playercardPayload = {
@@ -108,10 +55,12 @@ function updateCountdown(countdownValue) {
         resultTextElement.textContent = 'Done!';
     }
 
+    // If the player tried to make a card again, we display they've already made a card
     socket.on("game_card_exists", (data) => {
-    alert(data.message);
+        alert(data.message);
     });
 
+    // Generate and Display the Player's Bingo Card
     function generateBoard(table) {
         const usedNumbers = []; 
         const playercardPayload = {
@@ -134,72 +83,116 @@ function updateCountdown(countdownValue) {
 
         table.appendChild(headerRow);
 
+        for (let i = 0; i < 5; i++) {
+            let tr = document.createElement("tr");
+            table.appendChild(tr);
 
-    for (let i = 0; i < 5; i++) {
-        let tr = document.createElement("tr");
-        table.appendChild(tr);
+            for (let j = 0; j < 5; j++) {
+                let td = document.createElement("td");
+                td.id = "cell-" + i + "-" + j;
+                td.classList.add("main-table-cell");
 
-        for (let j = 0; j < 5; j++) {
-            let td = document.createElement("td");
-            td.id = "cell-" + i + "-" + j;
-            td.classList.add("main-table-cell");
+                let div = document.createElement("div");
+                div.classList.add("cell-format");
 
-            let div = document.createElement("div");
-            div.classList.add("cell-format");
+                const randomNumber = generateUniqueRandomNumber(usedNumbers, j * 15 + 1, (j + 1) * 15);
+                usedNumbers.push(randomNumber); // Add the number to the usedNumbers array
 
-            const randomNumber = generateUniqueRandomNumber(usedNumbers, j * 15 + 1, (j + 1) * 15);
-            usedNumbers.push(randomNumber); // Add the number to the usedNumbers array
+                div.textContent = randomNumber.toString();
 
-            div.textContent = randomNumber.toString();
+                if(i == 2 && j == 2){
+                    div.textContent = 'FREE';
+                }
+                
+                // Assuming playercardPayload is defined outside this function
+                playercardPayload.randomNum = randomNumber.toString();
+                playercardPayload.spot_id = (i + 1) + (j * 5);
+                console.log(
+                    "SPOT ID: " + playercardPayload.spot_id + " td.id : " + td.id.toString() + "VALUE IN THIS CELL: " + playercardPayload.randomNum + "THIS IS I : " + i + " THIS IS J: " + j
+                )
+                td.appendChild(div);
+                tr.appendChild(td);
 
-            if(i == 2 && j == 2){
-                div.textContent = 'FREE';
+                socket.emit("cardspotting", playercardPayload);
+
+                const resultTextElement = document.getElementById('create-board');
+                resultTextElement.textContent = 'Done!';
             }
-            
-            // Assuming playercardPayload is defined outside this function
-            playercardPayload.randomNum = randomNumber.toString();
-            playercardPayload.spot_id = (i + 1) + (j * 5);
-            console.log(
-                "SPOT ID: " + playercardPayload.spot_id + " td.id : " + td.id.toString() + "VALUE IN THIS CELL: " + playercardPayload.randomNum + "THIS IS I : " + i + " THIS IS J: " + j
-            )
-            td.appendChild(div);
-            tr.appendChild(td);
-
-            socket.emit("cardspotting", playercardPayload);
-
-            const resultTextElement = document.getElementById('create-board');
-            resultTextElement.textContent = 'Done!';
         }
     }
 
-}
+    // Function to generate unique random numbers within a range
+    function generateUniqueRandomNumber(usedNumbers, min, max) {
+        console.log("MIN: " + min + "MAX: " + max);
+        let randomNumber;
+        do {
+            randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+        } while (usedNumbers.includes(randomNumber)); // Check if the number is already used
+        return randomNumber;
+    }
 
-// Function to generate unique random numbers within a range
-function generateUniqueRandomNumber(usedNumbers, min, max) {
-    console.log("MIN: " + min + "MAX: " + max);
-    let randomNumber;
-    do {
-        randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-    } while (usedNumbers.includes(randomNumber)); // Check if the number is already used
-    return randomNumber;
-}
+    function getRandomNumber(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
+    // Starts the game
+    socket.on("gamestarted", (gamecode) => {
+        let countdownValue = 3;
 
-function getRandomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+        updateCountdown(countdownValue);
 
+        countdownInterval = setInterval(() => {
+            countdownValue--;
 
+            updateCountdown(countdownValue);
 
-document.getElementById('gamestart').addEventListener('click', gamestart);
+            if (countdownValue <= 0) {
+                clearInterval(countdownInterval);
+            updateCountdown('Game Start');
+                postCountdownInterval = setInterval(() => {
+                pullBalls();
+                }, 2500);
 
-document.getElementById('playercard').addEventListener('click', getPlayerCard);
+            }
+        }, 1000);
+    });
 
-document.getElementById('create-board').addEventListener('click', function() {
-    const table = document.querySelector("#tblBingo");
-    generateBoard(table);
-});
+    function pullBalls(){
+        socket.emit("pullball", '<%=gamecode%>');
+    }
 
+    // When a pall is pulled that is on the player card, we display the changes on the player bingo card
+    socket.on("ballNumber", (ballInfo) =>{
+        const targetNumber = ballInfo.ballNum;
 
+        for (let i = 0; i < 5; i++) {
+            for (let j = 0; j < 5; j++) {
+                const cellElement = document.getElementById("cell-" + i + "-" + j);
+                const cellValue = parseInt(cellElement.textContent);
 
+                if (cellValue === targetNumber) {
+                    cellElement.classList.remove("main-table-cell");
+                    cellElement.classList.add("scratched-table-cell");
+                    break; 
+                }
+            }
+        }
+
+        const string =  ballInfo.ballLetter.toString() + "  " + ballInfo.ballNum.toString();
+        updateCountdown(string);
+        const playerBoardInfo = {
+            gamecode: '<%=gamecode%>',
+            player_id: '<%= user.username.username%>',
+            pulledBallNum: ballInfo.ballNum,
+            id: ''
+        }
+        socket.emit("checkPlayerBoard", playerBoardInfo);
+    });
+
+    // Indicates the winner!
+    socket.on("WinnerWinner", (data)=> {
+        updateCountdown("WINNER WINNER: " + data);
+        clearInterval(postCountdownInterval);
+        clearInterval(countdownInterval);
+    });
 </script>
