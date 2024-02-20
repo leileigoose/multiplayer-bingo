@@ -36,3 +36,6 @@ You could also build the database from scratch via our SQL code bingo_db_psql.sq
 2. With your editor, open the entire folder named '<insert our repo name here>'
 3. In the code editor terminal, run 'npm install'
 4. Open your favorite browser, and type in "http://localhost:3000/"
+
+
+peepeepoopoo
